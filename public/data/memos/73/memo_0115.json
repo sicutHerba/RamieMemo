@@ -1,0 +1,34 @@
+{
+  "id": "memo_0115",
+  "type": 2,
+  "updatedAt": "2026-02-16T01:56:31.649Z",
+  "title": {
+    "zh": "《许志永法庭陈述：美好中国 》"
+  },
+  "content": {
+    "zh": "我想有一个梦想，美好中国，美丽且自由，公正、幸福。那是民主中国。天下仍是天下人之天下，非一族一党之江山，真正人民的国家，政权出自选票，而非枪杆子。"
+  },
+  "date": null,
+  "tags": {
+    "zh": []
+  },
+  "images": [
+    {
+      "url": "https://ia903209.us.archive.org/31/items/politician-1-1-5-screenshot/Politician%20%28%E6%94%BF%E6%B2%BB%E5%AE%B6%29%201-1-5%20screenshot.png",
+      "caption": "《政治家》陈家坪"
+    }
+  ],
+  "sources": [
+    {
+      "title": "为了自由而失去自由——许志永博士被控颠覆国家政权罪自辩词",
+      "url": "https://chinadigitaltimes.net/chinese/694913.html"
+    },
+    {
+      "title": "Politician (政治家)",
+      "url": "https://www.youtube.com/watch?v=_b4seLc3-L0"
+    }
+  ],
+  "relatedMemos": [
+    "memo_0079"
+  ]
+}

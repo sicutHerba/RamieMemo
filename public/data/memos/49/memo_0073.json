@@ -1,0 +1,26 @@
+{
+  "id": "memo_0073",
+  "type": 5,
+  "updatedAt": "2026-02-16T01:55:18.297Z",
+  "title": {
+    "zh": "中药注射剂"
+  },
+  "content": {
+    "zh": "鱼腥草注射液在2006年至2008年期间，共引发2282起不良反应，其中过敏性休克致死亡22例\n\n2025年5月4日，阜阳一男子在注射刺五加注射液后身亡。"
+  },
+  "date": "0504",
+  "tags": {
+    "zh": [
+      "医疗"
+    ]
+  },
+  "sources": [
+    {
+      "title": "中药注射剂",
+      "url": "https://zh.wikipedia.org/zh-hans/%E4%B8%AD%E8%8D%AF%E6%B3%A8%E5%B0%84%E5%89%82#cite_note-57"
+    }
+  ],
+  "relatedMemos": [
+    "memo_0070"
+  ]
+}

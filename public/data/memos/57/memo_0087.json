@@ -1,0 +1,29 @@
+{
+  "id": "memo_0087",
+  "type": 5,
+  "updatedAt": "2026-02-16T01:55:46.646Z",
+  "title": {
+    "zh": "微信"
+  },
+  "content": {
+    "zh": "一位不愿透露姓名的北京用户表示，其微信账号因批评中国外交政策被封，数日后被带走问话。在约两小时的盘问中，警方出示打印的微信聊天记录，宣读其中批评中国领导人的内容。该用户在签署保证书、承诺不再批评政府后获释。根据《中华人民共和国网络安全法》，所有互联网公司必须保存网络日志及相关数据至少六个月，以协助执法，并对内容违规承担责任，建立聊天群用户信用评级制度等。微信隐私政策亦指出，其可能根据政府要求“保存、披露和使用”用户信息。\n"
+  },
+  "date": null,
+  "tags": {
+    "zh": []
+  },
+  "sources": [
+    {
+      "title": "微信已成为中国无处不在的监控利器-11608697812",
+      "url": "https://cn.wsj.com/articles/%E5%BE%AE%E4%BF%A1%E5%B7%B2%E6%88%90%E4%B8%BA%E4%B8%AD%E5%9B%BD%E6%97%A0%E5%A4%84%E4%B8%8D%E5%9C%A8%E7%9A%84%E7%9B%91%E6%8E%A7%E5%88%A9%E5%99%A8-11608697812?gaa_at=eafs&gaa_n=AWEtsqeoTnh_gUwbNkkIXXMgzEAi7G15mNNlLQZTC5hj9gna8YFxUIBp633o0WKj2kU%3D&gaa_ts=6990dfb7&gaa_sig=Jox2yi4-sg_zoiHB7WLSgYFegPlmrfkelTf-nnGaI6NGb_3s-Wu_Qo-vTzJbgxGilpMm7AQq53EP-jYD0xDW_Q%3D%3D"
+    },
+    {
+      "title": "tencents-wechat-denies-storing-chat-history-but-its-users-are-monitored-by-the-chinese-government",
+      "url": "https://qz.com/1170046/tencents-wechat-denies-storing-chat-history-but-its-users-are-monitored-by-the-chinese-government"
+    },
+    {
+      "title": "微信監控诠釋 - The Citizen LabCitizen Lab Brand SymbolThe Citizen Lab",
+      "url": "https://citizenlab.ca/research/we-chat-they-watch/wechat-surveillance-explained/%E5%BE%AE%E4%BF%A1%E7%9B%A3%E6%8E%A7%E8%AF%A0%E9%87%8B/"
+    }
+  ]
+}

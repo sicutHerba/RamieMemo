@@ -1,0 +1,37 @@
+{
+  "id": "memo_0005",
+  "type": 2,
+  "updatedAt": "2026-02-16T01:54:18.092Z",
+  "title": {
+    "zh": "天降"
+  },
+  "content": {
+    "zh": "影片取材于湖南省邵阳市绥宁县，记录了当地百姓因生活在火箭残骸落区而遭遇的诸多困难与不幸。从1990年起至今近20年间，当地先后数十次遭遇从天而降的火箭残骸，其中多数为价值上亿的商业卫星。"
+  },
+  "date": null,
+  "tags": {
+    "zh": [
+      "农村"
+    ]
+  },
+  "images": [
+    {
+      "url": "https://ia800607.us.archive.org/35/items/joined-screenshot_20260215/joined-screenshot.jpg",
+      "caption": "《天降 Falling from the Sky》张赞波 2009"
+    },
+    {
+      "url": "https://ia902902.us.archive.org/3/items/joined-screenshot_202602/joined-screenshot.jpg",
+      "caption": ""
+    }
+  ],
+  "sources": [
+    {
+      "title": "天降",
+      "url": "https://zh.wikipedia.org/wiki/%E5%A4%A9%E9%99%8D"
+    },
+    {
+      "title": "CIFA 影片收藏CIFA's Film Collection: 《天降》（张赞波，2009）Falling from the Sky (Zhang Zanbo, 2009)",
+      "url": "https://www.youtube.com/watch?v=pi3AlHlomIE"
+    }
+  ]
+}

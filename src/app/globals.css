@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F5;
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --note-bg: #FAF8F3;
+  --note-shadow: rgba(0,0,0,0.1);
+  --note-border: #D4CFC4;
+  --accent: #000000;
+  --accent-hover: #333333;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  /* Prevent pull-to-refresh from affecting layout */
+  overscroll-behavior-y: contain;
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh; /* Use dynamic viewport height on mobile */
+}
+
+html {
+  /* Prevent overscroll bounce on mobile */
+  overscroll-behavior-y: none;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100%;
+  /* Ensure viewport starts at the very top */
+  position: relative;
+}
+
+/* Ensure no spacing on any root-level elements */
+#__next,
+#root {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Reset header element to prevent browser defaults */
+header {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  /* Ensure header starts at the absolute top */
+  display: block;
+}
+
+code {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+@layer components {
+  .memo-card {
+    @apply border rounded-sm;
+    @apply shadow-note transition-all duration-200;
+    background-color: var(--note-bg);
+    border-color: transparent;
+    border-width: 1px;
+    outline: 2px solid rgba(135, 154, 119, 0.4);
+    outline-offset: -8px;
+    transform: rotate(-0.5deg);
+    /* Mobile: smaller padding and text */
+    @apply p-4 text-sm;
+    /* Tablet and up: normal padding and text */
+    @apply sm:p-5 sm:text-base;
+    @apply md:p-6;
+  }
+
+  .memo-card:hover {
+    @apply shadow-note-hover;
+    transform: rotate(0deg) translateY(-4px);
+  }
+
+  .memo-card-no-animation {
+    @apply border rounded-sm p-5 sm:p-6;
+    @apply shadow-note;
+    background-color: var(--note-bg);
+    border-color: transparent;
+    border-width: 1px;
+    outline: 2px solid rgba(135, 154, 119, 0.4);
+    outline-offset: -8px;
+    transform: none !important;
+  }
+
+  .memo-card-no-animation:hover {
+    transform: none !important;
+  }
+
+  .memo-card-deck {
+    @apply border rounded-sm p-4 sm:p-6;
+    @apply shadow-note;
+    background-color: var(--note-bg);
+    border-color: var(--note-border);
+    border-width: 1.5px;
+    transform: none !important;
+  }
+
+  .memo-card-calendar {
+    @apply border rounded-sm p-4 sm:p-6;
+    @apply shadow-note;
+    background-color: var(--note-bg);
+    border-color: transparent;
+    border-width: 1px;
+    outline: 2px solid rgba(135, 154, 119, 0.4);
+    outline-offset: -8px;
+    transform: none !important;
+  }
+
+  .memo-card-calendar:hover {
+    transform: none !important;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 bg-black text-white rounded;
+    @apply hover:bg-gray-800 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-white text-black border border-black rounded;
+    @apply hover:bg-gray-100 transition-colors;
+  }
+
+  /* Hide scrollbars while keeping scroll functionality */
+  .modal-content-scroll::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  /* For Firefox */
+  .modal-content-scroll,
+  .overflow-y-auto {
+    scrollbar-width: none;
+  }
+
+  /* For IE and Edge */
+  .modal-content-scroll,
+  .overflow-y-auto {
+    -ms-overflow-style: none;
+  }
+}
+
+@keyframes shuffle-1 {
+  0%, 100% { transform: translateX(2px) translateY(2px) rotate(-1deg); }
+  50% { transform: translateX(-4px) translateY(4px) rotate(1deg); }
+}
+
+@keyframes shuffle-2 {
+  0%, 100% { transform: translateX(4px) translateY(4px) rotate(-2deg); }
+  50% { transform: translateX(-2px) translateY(6px) rotate(2deg); }
+}
+
+.animate-shuffle-1 {
+  animation: shuffle-1 0.6s ease-in-out;
+}
+
+.animate-shuffle-2 {
+  animation: shuffle-2 0.6s ease-in-out;
+}

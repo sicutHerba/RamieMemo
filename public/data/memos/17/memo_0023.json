@@ -1,0 +1,27 @@
+{
+  "id": "memo_0023",
+  "type": 1,
+  "updatedAt": "2026-02-16T01:54:33.595Z",
+  "title": {
+    "zh": "留置针集采"
+  },
+  "content": {
+    "zh": "2020至2023年各省医保局留置针集采公示显示，前几批省级采购平均降价多超过70%，最高降幅逾94%，中选产品最低价不足1.5元。集采前留置针最长可留置约7天，集采后不少患者需一天一针，血管条件差者甚至一天更换2至3次。\r\n"
+  },
+  "date": null,
+  "tags": {
+    "zh": [
+      "医疗"
+    ]
+  },
+  "sources": [
+    {
+      "title": "留置针降价了、但变钝了：集采真的省钱了吗？",
+      "url": "https://theinitium.com/20250506-mainland-dataphile-detaining-needle-centralized-procurement-zh-hans/"
+    }
+  ],
+  "relatedMemos": [
+    "memo_0024",
+    "memo_0099"
+  ]
+}

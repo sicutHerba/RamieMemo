@@ -1,0 +1,26 @@
+{
+  "id": "memo_0121",
+  "type": 2,
+  "updatedAt": "2026-02-15T23:16:09.493Z",
+  "title": {
+    "zh": "It‘s my duty 因为这是我的职责"
+  },
+  "content": {
+    "zh": "\"Going to March, Tiananmen Square.\" 去游行，天安门广场\n\"Why?\" 为什么？\n\"Why?I think it's my duty.\" 为什么？因为这是我的职责。"
+  },
+  "date": "0603",
+  "tags": {
+    "zh": [
+      "六四"
+    ]
+  },
+  "relatedMemos": [
+    "memo_0040"
+  ],
+  "images": [
+    {
+      "url": "https://web.archive.org/web/20200604160505/https://pbs.twimg.com/media/EZrhblAU8AUJWGB.jpg",
+      "caption": ""
+    }
+  ]
+}

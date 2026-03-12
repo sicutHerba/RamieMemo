@@ -1,0 +1,25 @@
+{
+  "id": "memo_0007",
+  "type": 2,
+  "updatedAt": "2026-02-16T01:54:20.450Z",
+  "title": {
+    "zh": "《中国孩子》周云蓬"
+  },
+  "content": {
+    "zh": "不要做中国人的孩子，爸爸妈妈都是些怯懦的人\r\n为证明他们的铁石心肠，死到临头让领导先走"
+  },
+  "date": null,
+  "tags": {
+    "zh": []
+  },
+  "relatedMemos": [
+    "memo_0006",
+    "memo_0152"
+  ],
+  "sources": [
+    {
+      "title": "Co-China周刊 | 周云蓬：中国孩子",
+      "url": "https://chinadigitaltimes.net/chinese/228246.html"
+    }
+  ]
+}

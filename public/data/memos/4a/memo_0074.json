@@ -1,0 +1,29 @@
+{
+  "id": "memo_0074",
+  "type": 2,
+  "updatedAt": "2026-02-16T01:55:18.950Z",
+  "title": {
+    "zh": "上访 Petition"
+  },
+  "content": {
+    "zh": "愁啊愁，愁就白了头，自从我走上了上访的路，从此我就没有回头。眼泪也止不住地流，止不住地往下流。"
+  },
+  "date": null,
+  "tags": {
+    "zh": [
+      "维权"
+    ]
+  },
+  "relatedMemos": [
+    "memo_0009",
+    "memo_0083",
+    "memo_0098",
+    "memo_0113"
+  ],
+  "sources": [
+    {
+      "title": "上访 中国访民的故事",
+      "url": "https://minjian-danganguan.org/zh/archive/2042"
+    }
+  ]
+}

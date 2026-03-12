@@ -1,0 +1,24 @@
+{
+  "id": "memo_0110",
+  "type": 1,
+  "updatedAt": "2026-02-16T01:56:29.148Z",
+  "title": {
+    "zh": "6亿人月收入1000元"
+  },
+  "content": {
+    "zh": "2020年5月28日，国务院总理李克强在回答中外记者提问时讲到，我们有6亿人每个月的收入也就1000元左右。"
+  },
+  "date": "0528",
+  "tags": {
+    "zh": []
+  },
+  "sources": [
+    {
+      "title": "财新网｜月收入不足千元，这6亿人都在哪？",
+      "url": "https://chinadigitaltimes.net/chinese/646467.html"
+    }
+  ],
+  "relatedMemos": [
+    "memo_0107"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "memo_0116",
+  "type": 1,
+  "updatedAt": "2026-02-16T01:56:31.887Z",
+  "title": {
+    "zh": "全球新闻自由指数"
+  },
+  "content": {
+    "zh": "在无国界记者于2023年发布的全球新闻自由指数排名中，中华人民共和国在180个国家与地区中排名第179名，仅次于朝鲜民主主义人民共和国。"
+  },
+  "date": null,
+  "tags": {
+    "zh": []
+  },
+  "sources": [
+    {
+      "title": "中华人民共和国新闻自由",
+      "url": "https://zh.wikipedia.org/zh-hans/%E4%B8%AD%E8%8F%AF%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9C%8B%E6%96%B0%E8%81%9E%E8%87%AA%E7%94%B1"
+    }
+  ],
+  "relatedMemos": [
+    "memo_0071",
+    "memo_0095",
+    "memo_0122",
+    "memo_0130"
+  ]
+}

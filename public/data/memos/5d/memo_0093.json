@@ -1,0 +1,34 @@
+{
+  "id": "memo_0093",
+  "type": 5,
+  "updatedAt": "2026-02-16T01:56:03.112Z",
+  "title": {
+    "zh": "头号官倒公司"
+  },
+  "content": {
+    "zh": "中国康华发展总公司成立于1988年3月，经中华人民共和国国务院批准设立，是一家国有公司，由中国残疾人基金会（现称中国残疾人福利基金会）派生而来。公司由邓小平长子邓朴方等人创建，并于1989年被撤销。截至1988年12月，公司下设58个子公司、113个三级公司。\n"
+  },
+  "date": null,
+  "tags": {
+    "zh": [
+      "六四"
+    ]
+  },
+  "images": [
+    {
+      "url": "https://web.archive.org/web/20220815033429/https://pbs.twimg.com/media/DBlgs_gW0AEbErG.jpg",
+      "caption": "“请问邓小平，我的孩子在绝食、挨饿，你的孩子在干什么！”"
+    }
+  ],
+  "sources": [
+    {
+      "title": "中国康华发展总公司",
+      "url": "https://zh.wikipedia.org/zh-hans/%E4%B8%AD%E5%9B%BD%E5%BA%B7%E5%8D%8E%E5%8F%91%E5%B1%95%E6%80%BB%E5%85%AC%E5%8F%B8"
+    }
+  ],
+  "relatedMemos": [
+    "memo_0094",
+    "memo_0124",
+    "memo_0266"
+  ]
+}
