@@ -1,0 +1,10 @@
+# Code owners for RamieMemo
+# These owners will be automatically requested for review when someone opens a pull request
+
+# Default owner for everything in the repo
+* @sicutHerba
+
+# Specific directories that require extra attention
+/public/data/memos/ @sicutHerba
+/src/ @sicutHerba
+/.github/workflows/ @sicutHerba
