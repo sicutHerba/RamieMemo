@@ -14,8 +14,11 @@
   },
   "images": [
     {
-      "url": "https://web.archive.org/web/20260215133231/https://img.soundofhope.org/2020-08/solo-protest-0-1598752277118.jpg",
-      "caption": "内蒙古一名小学生手持“外语是工具，母语是灵魂”的标语。旅日蒙古人抗议中国以汉语替代蒙语的“双语教学”计划"
+      "url": "/images/memos/memo_0119_0.jpg",
+      "caption": {
+        "zh": "内蒙古一名小学生手持“外语是工具，母语是灵魂”的标语。旅日蒙古人抗议中国以汉语替代蒙语的“双语教学”计划",
+        "en": "A primary school student in Inner Mongolia holds a sign saying 'Foreign language is a tool, mother tongue is the soul'. Mongolians in Japan protest against China's 'bilingual education' plan to replace Mongolian with Chinese"
+      }
     }
   ],
   "sources": [

@@ -14,8 +14,11 @@
   },
   "images": [
     {
-      "url": "https://ia903209.us.archive.org/31/items/politician-1-1-5-screenshot/Politician%20%28%E6%94%BF%E6%B2%BB%E5%AE%B6%29%201-1-5%20screenshot.png",
-      "caption": "《政治家》陈家坪"
+      "url": "/images/memos/memo_0115_0.png",
+      "caption": {
+        "zh": "《政治家》陈家坪",
+        "en": "The Politician, Chen Jiaping"
+      }
     }
   ],
   "sources": [

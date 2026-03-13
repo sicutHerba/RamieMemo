@@ -25,7 +25,9 @@
     }
   ],
   "images": [
-    "https://web.archive.org/web/20260302190450if_/https://dims.apnews.com/dims4/default/d1d5ad7/2147483647/strip/true/crop/3000x2259+0+0/resize/2880x2168!/format/webp/quality/90/?url=https%3A%2F%2Fstorage.googleapis.com%2Fafs-prod%2Fmedia%2F1dce36ca72a449c3bc7cbb84f6479158%2F3000.jpeg"
+    {
+      "url": "/images/memos/memo_0056_0.jpg"
+    }
   ],
   "relatedMemos": [
     "memo_0041"

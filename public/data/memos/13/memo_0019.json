@@ -19,8 +19,11 @@
   ],
   "images": [
     {
-      "url": "https://archive.org/download/floating-huang-weikai-2005-1/%E9%A3%98%20Floating%20%E9%BB%84%E4%BC%9F%E5%87%AF%20Huang%20Weikai%20%282005%29%20%28English%20subtitles%29%201-21-40%20screenshot.png",
-      "caption": "《飘 Floating》黄伟凯 (2005)"
+      "url": "/images/memos/memo_0019_0.png",
+      "caption": {
+        "zh": "《飘 Floating》黄伟凯 (2005)",
+        "en": "Floating, Huang Weikai (2005)"
+      }
     }
   ],
   "sources": [

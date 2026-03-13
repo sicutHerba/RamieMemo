@@ -12,7 +12,9 @@
   "tags": {
     "zh": []
   },
-  "relatedMemos": ["memo_0105"],
+  "relatedMemos": [
+    "memo_0105"
+  ],
   "sources": [
     {
       "title": "2013年《南方周末》新年特刊事件",
@@ -25,9 +27,10 @@
   ],
   "images": [
     {
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/2013_Southern_Weekly_Demonstration_of_News_Censorship_1.jpg/500px-2013_Southern_Weekly_Demonstration_of_News_Censorship_1.jpg",
+      "url": "/images/memos/memo_0162_0.jpg",
       "caption": {
-        "zh": "2013年《南方周末》新闻审查抗议活动"
+        "zh": "2013年《南方周末》新闻审查抗议活动",
+        "en": "2013 Southern Weekly News Censorship Protest"
       }
     }
   ]

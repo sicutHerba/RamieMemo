@@ -21,6 +21,7 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
   const [isGenerating, setIsGenerating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef(0);
 
@@ -39,6 +40,7 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
     if (isOpen) {
       setImageUrl(null);
       setCopyStatus('idle');
+      setGenerationError(null);
       generateImage();
     }
   }, [isOpen]);
@@ -50,6 +52,7 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
     }
 
     setIsGenerating(true);
+    setGenerationError(null);
     let clone: HTMLDivElement | null = null;
     let wrapper: HTMLDivElement | null = null;
     try {
@@ -67,6 +70,38 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
         clone.querySelectorAll('[data-share-exclude="true"]').forEach((node) => {
           node.remove();
         });
+
+        // Handle images with potential CORS issues
+        const images = clone.querySelectorAll('img');
+        await Promise.all(Array.from(images).map(async (img) => {
+          // Skip data URLs and relative URLs
+          if (img.src.startsWith('data:') || img.src.startsWith('/')) {
+            return;
+          }
+
+          try {
+            // Test if image can be loaded with CORS
+            const testImg = new Image();
+            testImg.crossOrigin = 'anonymous';
+            
+            await new Promise((resolve, reject) => {
+              testImg.onload = resolve;
+              testImg.onerror = reject;
+              testImg.src = img.src;
+            });
+            
+            // If successful, set crossOrigin on the clone's image
+            img.crossOrigin = 'anonymous';
+          } catch (error) {
+            // If CORS fails, remove the image to prevent toPng from failing
+            console.warn(`CORS issue with image: ${img.src}. Removing from share capture.`);
+            const parent = img.parentElement;
+            if (parent) {
+              // Remove the entire image container
+              parent.remove();
+            }
+          }
+        }));
 
         const footer = document.createElement('div');
         footer.style.paddingTop = '12px';
@@ -135,6 +170,12 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
       setImageUrl(dataUrl);
     } catch (error) {
       console.error('Failed to generate image:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      setGenerationError(
+        lang === 'zh' 
+          ? `生成图片失败: ${errorMsg.includes('CORS') ? '图片跨域限制' : '请稍后重试'}`
+          : `Failed to generate image: ${errorMsg.includes('CORS') ? 'Image CORS restriction' : 'Please try again'}`
+      );
     } finally {
       if (wrapper && wrapper.parentNode) {
         wrapper.parentNode.removeChild(wrapper);
@@ -415,6 +456,31 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
                     <p className="text-gray-600">{getLabel('generatingImage', lang)}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error state - shown when generation fails */}
+              {!isGenerating && generationError && (
+                <div className="mt-6">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <svg className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-sm text-red-800 font-medium mb-1">
+                          {lang === 'zh' ? '生成失败' : 'Generation Failed'}
+                        </p>
+                        <p className="text-sm text-red-700">{generationError}</p>
+                        <button
+                          onClick={generateImage}
+                          className="mt-3 text-sm text-red-600 hover:text-red-800 underline"
+                        >
+                          {lang === 'zh' ? '重试' : 'Retry'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

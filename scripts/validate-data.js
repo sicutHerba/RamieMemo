@@ -85,7 +85,7 @@ function validateMemo(memo, filePath) {
 function validateAllMemos() {
   console.log('🔍 Validating all memos...\n');
 
-  const baseDir = path.join(__dirname, '..', 'data', 'memos');
+  const baseDir = path.join(__dirname, '..', 'public', 'data', 'memos');
   const allErrors = [];
   const ids = new Set();
   let totalMemos = 0;

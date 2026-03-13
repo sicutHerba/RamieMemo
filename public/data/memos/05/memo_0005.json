@@ -16,12 +16,14 @@
   },
   "images": [
     {
-      "url": "https://ia800607.us.archive.org/35/items/joined-screenshot_20260215/joined-screenshot.jpg",
-      "caption": "《天降 Falling from the Sky》张赞波 2009"
+      "url": "/images/memos/memo_0005_0.jpg",
+      "caption": {
+        "zh": "《天降 Falling from the Sky》张赞波 2009",
+        "en": "Falling from the Sky, Zhang Zanbo, 2009"
+      }
     },
     {
-      "url": "https://ia902902.us.archive.org/3/items/joined-screenshot_202602/joined-screenshot.jpg",
-      "caption": ""
+      "url": "/images/memos/memo_0005_1.jpg"
     }
   ],
   "sources": [

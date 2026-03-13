@@ -16,8 +16,11 @@
   },
   "images": [
     {
-      "url": "https://web.archive.org/web/20220815033429/https://pbs.twimg.com/media/DBlgs_gW0AEbErG.jpg",
-      "caption": "“请问邓小平，我的孩子在绝食、挨饿，你的孩子在干什么！”"
+      "url": "/images/memos/memo_0093_0.jpg",
+      "caption": {
+        "zh": "“请问邓小平，我的孩子在绝食、挨饿，你的孩子在干什么！”",
+        "en": "'Mr. Deng Xiaoping, my child is on hunger strike, what is your child doing!'"
+      }
     }
   ],
   "sources": [
