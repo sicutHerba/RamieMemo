@@ -111,7 +111,7 @@ export default function MemoCard({ memo, onRefresh, hideViewDetails, noAnimation
           {memo.images.map((img, idx) => (
             <div key={idx} className="flex flex-col items-center justify-center">
               <img 
-                src={img.url} 
+                src={`${process.env.NODE_ENV === 'production' ? '/RamieMemo' : ''}${img.url}`} 
                 alt={img.caption ? t(img.caption) : t(memo.title)}
                 className="w-full max-h-96 object-contain rounded"
                 loading="lazy"
@@ -128,7 +128,7 @@ export default function MemoCard({ memo, onRefresh, hideViewDetails, noAnimation
       ) : memo.image && (
         <div className="mb-3 sm:mb-4 flex items-center justify-center">
           <img 
-            src={memo.image} 
+            src={`${process.env.NODE_ENV === 'production' ? '/RamieMemo' : ''}${memo.image}`} 
             alt={t(memo.title)}
             className="w-full max-h-96 object-contain rounded"
             loading="lazy"
