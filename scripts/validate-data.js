@@ -5,7 +5,7 @@ const path = require('path');
  * Validate all memo files for correct structure and data
  */
 
-const VALID_TYPES = ['event', 'quote', 'figure', 'legal_case'];
+const VALID_TYPES = [1, 2, 3, 4, 5]; // 1=figure, 2=event, 3=legal_case, 4=quote, 5=other
 
 function getMemoFolder(memoNum) {
   return (memoNum % 256).toString(16).padStart(2, '0');
@@ -17,7 +17,6 @@ function validateMemo(memo, filePath) {
   // Required fields
   if (!memo.id) errors.push('Missing id');
   if (!memo.title) errors.push('Missing title');
-  if (!memo.content) errors.push('Missing content');
   if (!memo.type) errors.push('Missing type');
   if (!memo.tags) errors.push('Missing tags');
 
@@ -36,46 +35,56 @@ function validateMemo(memo, filePath) {
     }
   }
 
-  // Date format (if provided)
+  // Date format (if provided) - MMDD format or null
   if (memo.date !== null && memo.date !== undefined) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(memo.date)) {
-      errors.push(`Invalid date format: ${memo.date} (should be YYYY-MM-DD or null)`);
+    if (!/^\d{4}$/.test(memo.date)) {
+      errors.push(`Invalid date format: ${memo.date} (should be MMDD format like "1203" or null)`);
     }
   }
 
-  // Valid type
+  // Valid type (numeric)
   if (memo.type && !VALID_TYPES.includes(memo.type)) {
     errors.push(`Invalid type: ${memo.type} (must be one of: ${VALID_TYPES.join(', ')})`);
   }
 
-  // Bilingual fields
+  // Title must have zh field (en is optional)
   if (memo.title) {
-    if (!memo.title.zh || !memo.title.en) {
-      errors.push('Title must have both zh and en fields');
+    if (!memo.title.zh) {
+      errors.push('Title must have zh field');
     }
   }
 
+  // Content must have zh field if present (en is optional)
   if (memo.content) {
-    if (!memo.content.zh || !memo.content.en) {
-      errors.push('Content must have both zh and en fields');
+    if (!memo.content.zh) {
+      errors.push('Content must have zh field');
     }
   }
 
+  // Tags must have zh array (en is optional)
   if (memo.tags) {
-    if (!memo.tags.zh || !memo.tags.en) {
-      errors.push('Tags must have both zh and en arrays');
+    if (!memo.tags.zh) {
+      errors.push('Tags must have zh array');
     }
     if (memo.tags.zh && !Array.isArray(memo.tags.zh)) {
       errors.push('tags.zh must be an array');
     }
-    if (memo.tags.en && !Array.isArray(memo.tags.en)) {
-      errors.push('tags.en must be an array');
-    }
-    if (memo.tags.zh && memo.tags.zh.length === 0) {
-      errors.push('Must have at least one Chinese tag');
-    }
-    if (memo.tags.en && memo.tags.en.length === 0) {
-      errors.push('Must have at least one English tag');
+  }
+
+  // Check relatedMemos if present
+  if (memo.relatedMemos && !Array.isArray(memo.relatedMemos)) {
+    errors.push('relatedMemos must be an array');
+  }
+
+  // Check sources if present
+  if (memo.sources) {
+    if (!Array.isArray(memo.sources)) {
+      errors.push('sources must be an array');
+    } else {
+      memo.sources.forEach((source, idx) => {
+        if (!source.title) errors.push(`Source ${idx} missing title`);
+        if (!source.url) errors.push(`Source ${idx} missing url`);
+      });
     }
   }
 
