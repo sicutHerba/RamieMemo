@@ -176,6 +176,15 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
         await new Promise(requestAnimationFrame);
       }
 
+      // Call toPng twice - first call primes the image cache
+      await toPng(clone, {
+        quality: 1,
+        pixelRatio: isMobile ? 1.5 : 2,
+        backgroundColor: '#FAF8F3',
+        filter,
+        cacheBust: true,
+      }).catch(() => {});
+
       const dataUrl = await toPng(clone, {
         quality: 1,
         pixelRatio: isMobile ? 1.5 : 2, // Lower pixel ratio on mobile to reduce memory usage

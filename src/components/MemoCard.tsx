@@ -114,7 +114,6 @@ export default function MemoCard({ memo, onRefresh, hideViewDetails, noAnimation
                 src={`${process.env.NODE_ENV === 'production' ? '/RamieMemo' : ''}${img.url}`} 
                 alt={img.caption ? t(img.caption) : t(memo.title)}
                 className="w-full max-h-96 object-contain rounded"
-                loading="lazy"
                 decoding="async"
               />
               {img.caption && (
@@ -131,7 +130,6 @@ export default function MemoCard({ memo, onRefresh, hideViewDetails, noAnimation
             src={`${process.env.NODE_ENV === 'production' ? '/RamieMemo' : ''}${memo.image}`} 
             alt={t(memo.title)}
             className="w-full max-h-96 object-contain rounded"
-            loading="lazy"
             decoding="async"
           />
         </div>
