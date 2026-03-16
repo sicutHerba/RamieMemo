@@ -11,7 +11,7 @@ jest.mock('html-to-image', () => ({
 
 const mockMemo: Memo = {
   id: 'memo_test123',
-  date: new Date('2026-02-05'),
+  date: '0205',
   title: {
     zh: '测试备忘录',
     en: 'Test Memo'
@@ -24,8 +24,9 @@ const mockMemo: Memo = {
     zh: ['测试', '标签'],
     en: ['test', 'tag']
   },
-  image: 'https://example.com/image.jpg',
-  sources: []
+  type: 'event',
+  sources: [],
+  updatedAt: '2026-02-05T00:00:00.000Z'
 };
 
 describe('ShareImageModal', () => {
@@ -285,5 +286,38 @@ describe('ShareImageModal', () => {
       expect(screen.getAllByText('#测试').length).toBeGreaterThan(0);
       expect(screen.getAllByText('#标签').length).toBeGreaterThan(0);
     });
+  });
+
+  it('should display image preview on mobile devices', async () => {
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 375, // Mobile width
+    });
+
+    render(
+      <LanguageProvider>
+        <ShareImageModal isOpen={true} onClose={mockOnClose} memo={mockMemo} />
+      </LanguageProvider>
+    );
+
+    // Trigger resize
+    await act(async () => {
+      window.dispatchEvent(new Event('resize'));
+    });
+
+    // Wait for image generation and verify it's visible
+    await waitFor(() => {
+      const sharePreview = screen.getByAltText('Share preview');
+      expect(sharePreview).toBeInTheDocument();
+      expect(sharePreview).toBeVisible();
+      
+      // Verify image has proper styling for mobile
+      expect(sharePreview).toHaveClass('w-full');
+      expect(sharePreview).toHaveClass('h-auto');
+    }, { timeout: 3000 });
+
+    // Verify mobile instructions are shown
+    expect(screen.getByText(/long press|长按/i)).toBeInTheDocument();
   });
 });

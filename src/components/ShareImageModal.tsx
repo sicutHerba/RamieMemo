@@ -66,6 +66,13 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
         clone = captureElement.cloneNode(true) as HTMLDivElement;
         clone.style.transform = 'none';
         clone.style.pointerEvents = 'none';
+        
+        // Adjust width for mobile to prevent rendering issues
+        if (isMobile) {
+          const mobileWidth = Math.min(window.innerWidth - 32, 520);
+          clone.style.width = `${mobileWidth}px`;
+          clone.style.maxWidth = '100%';
+        }
 
         clone.querySelectorAll('[data-share-exclude="true"]').forEach((node) => {
           node.remove();
@@ -152,19 +159,29 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
       wrapper.style.position = 'fixed';
       wrapper.style.left = '-10000px';
       wrapper.style.top = '0';
-      wrapper.style.width = '520px';
+      
+      // Use smaller width on mobile to avoid rendering issues
+      const captureWidth = isMobile ? Math.min(window.innerWidth - 32, 520) : 520;
+      wrapper.style.width = `${captureWidth}px`;
       wrapper.style.height = 'auto';
       wrapper.style.pointerEvents = 'none';
 
       wrapper.appendChild(clone);
       document.body.appendChild(wrapper);
-      await new Promise(requestAnimationFrame);
+      
+      // On mobile, ensure DOM is fully rendered before capturing
+      if (isMobile) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } else {
+        await new Promise(requestAnimationFrame);
+      }
 
       const dataUrl = await toPng(clone, {
         quality: 1,
-        pixelRatio: 2,
+        pixelRatio: isMobile ? 1.5 : 2, // Lower pixel ratio on mobile to reduce memory usage
         backgroundColor: '#FAF8F3',
         filter,
+        cacheBust: true, // Add cache busting for mobile
       });
 
       setImageUrl(dataUrl);
@@ -302,7 +319,7 @@ export default function ShareImageModal({ isOpen, onClose, memo, displayDate, ca
                   ref={contentRef}
                   data-testid="share-capture-template"
                   style={{ 
-                    width: '520px',
+                    width: isMobile ? `${Math.min(window.innerWidth - 32, 520)}px` : '520px',
                     display: 'none',
                     pointerEvents: 'none',
                     backgroundColor: '#FAF8F3',
