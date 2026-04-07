@@ -1,0 +1,41 @@
+{
+  "id": "memo_0170",
+  "type": 5,
+  "updatedAt": "2026-04-07T00:00:00.000Z",
+  "title": {
+    "zh": "当儿童被按\"孤儿\"逻辑处理：家庭分离后的寄宿与福利机构安置场景"
+  },
+  "content": {
+    "zh": "自 2017 年起，新疆出现了一种特殊的家庭分离现象：在父母依然在世的情况下，部分维吾尔儿童在制度上被按\"孤儿（orphans）\"逻辑集中安置。\n\n当父母因被拘押、送入所谓\"教培中心\"或滞留海外而被迫缺席时，这些失去日常看护的儿童并未交由其他亲属，而是未经父母同意被送入全托寄宿学校或儿童福利院。这一事实已被联合国专家、人权观察组织及美联社等多方权威来源交叉印证。\n\n这一场景的公共记忆价值在于，它远不止是物理居住地的转移，而是官方机构对家庭照料的全面取代。这种机构化安置强制剥离了孩子与原生社群的日常互动，最终导致了家庭联系的中断、母语环境的断裂以及家庭记忆传承的受阻。"
+  },
+  "date": null,
+  "tags": {
+    "zh": [
+      "维吾尔",
+      "教育"
+    ]
+  },
+  "relatedMemos": [
+    "memo_0140",
+    "memo_0139",
+    "memo_0119"
+  ],
+  "sources": [
+    {
+      "title": "China: Xinjiang's forced separations and language policies for Uyghur children",
+      "url": "https://www.ohchr.org/en/press-releases/2023/09/china-xinjiangs-forced-separations-and-language-policies-uyghur-children"
+    },
+    {
+      "title": "China: Xinjiang Children Separated from Families",
+      "url": "https://www.hrw.org/news/2019/09/15/china-xinjiang-children-separated-families"
+    },
+    {
+      "title": "China treats Uighur kids as 'orphans' after parents seized",
+      "url": "https://apnews.com/article/international-news-crime-china-clamps-down-china-ap-top-news-903a97b7c62a47b98553b6f422827dd7"
+    },
+    {
+      "title": "The nightmare of Uyghur families separated by repression",
+      "url": "https://www.amnesty.org/en/latest/research/2021/03/the-nightmare-of-uyghur-families-separated-by-repression/"
+    }
+  ]
+}
