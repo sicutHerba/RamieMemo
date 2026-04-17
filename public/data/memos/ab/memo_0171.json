@@ -1,0 +1,30 @@
+{
+  "id": "memo_0171",
+  "type": 5,
+  "updatedAt": "2026-04-17T00:00:00.000Z",
+  "title": {
+    "zh": "被命名的侵害：联合国报告第 73 段的\"侵入性妇科检查\"记录"
+  },
+  "content": {
+    "zh": "2022 年 8 月 31 日，联合国人权高专办（OHCHR）发布《新疆人权关切评估》。报告第 73 段指出，部分女性受访者在描述拘押环境中的性暴力与性羞辱时，提及自身曾遭受\"invasive gynaecological examinations\"（侵入性妇科检查）。该检查并非常规的外部查看，而是直接侵入女性的私密部位。\n\n在常规医疗中，此类检查须建立在明确说明、患者同意且隐私受保障的基础之上，患者有权提问或要求停止。然而，OHCHR 报告记录的情境显示：该检查发生在当事人无法自由拒绝的拘押环境中；报告将其与性暴力、性羞辱、强迫裸体并列，并记录至少一例发生在群体场景中，\"让年长妇女羞耻，让年轻女孩哭泣\"。\n\n这类带有羞辱和强制性质的妇科检查，并不是孤立情节；在纳粹集中营历史中，女性囚犯也曾遭受以检查、实验或绝育名义实施的身体侵害。\n\n在拘押与剥夺同意权的情境下，这种本应基于隐私与尊严的检查，构成了对身体自主权的侵犯。\"侵入性妇科检查\"被载入正式公共文本，使这一侵害经验从模糊的泛指转变为具体的命名。"
+  },
+  "date": "0831",
+  "tags": {
+    "zh": []
+  },
+  "relatedMemos": ["memo_0169"],
+  "sources": [
+    {
+      "title": "OHCHR《Assessment of human rights concerns in the Xinjiang Uyghur Autonomous Region, People's Republic of China》",
+      "url": "https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/22-08-31-final-assesment.pdf"
+    },
+    {
+      "title": "GMC《Intimate examinations and chaperones》",
+      "url": "https://www.gmc-uk.org/professional-standards/the-professional-standards/intimate-examinations-and-chaperones/intimate-examinations-and-chaperones"
+    },
+    {
+      "title": "Auschwitz Memorial《Carl Clauberg》",
+      "url": "https://www.auschwitz.org/en/history/medical-experiments/carl-clauberg"
+    }
+  ]
+}
