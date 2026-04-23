@@ -1,0 +1,30 @@
+{
+  "id": "memo_0176",
+  "type": 2,
+  "updatedAt": "2026-04-23T00:00:00.000Z",
+  "title": {
+    "zh": "执行者的视角：张亚博笔下的新疆羁押与监控体系"
+  },
+  "content": {
+    "zh": "2026年4月，曾在新疆任职近九年的前警察张亚博，公开讲述了其在当地羁押场所及基层警务中的亲身经历。这份证词之所以重要,不仅在于它再次印证了关于任意拘押（arbitrary detention）、酷刑（torture）与性暴力（sexual violence）的指控，更在于它提供了一个极其罕见的\"执行者\"视角。过去，外界多透过幸存者、家属及学者的视角去理解新疆；而张亚博的讲述则揭示了，那些早已被外界记录的侵害，是如何在具体岗位上被层层下达、执行，并最终被包装成日常\"秩序\"的。联合国人权办（OHCHR）在2022年的评估报告中已记录了相关指控；张亚博证词的特殊之处，并非首次揭露这些问题，而是将它们重新拉回了残酷的执行现场。\n根据张亚博向研究机构和媒体提供的证词，在2014至2016年间，他曾负责将羁押者押送至审讯室，期间目睹了例行殴打、酷刑、审讯中的强奸，甚至因虐待致死的惨剧。此外，他后期在村级警务中的工作细节，则更为深刻地暴露了这套制度的日常面目：为\"可疑对象\"建档、更新信息、监控其关系网与宗教活动。而触发\"可疑\"的门槛却低得令人胆寒——一首歌、一首诗、甚至一次祈祷，都可能成为被怀疑和抓捕的理由。前一部分细节让我们窥见封闭空间内的极端暴力，后一部分则展现了同一套系统是如何将恐惧与猜疑无声息地渗透进普通人的日常生活之中。\n将这些细节拼凑起来，张亚博的证词呈现的绝非几起孤立的恶性事件，而是一幅严密的制度图景：从审讯室里的血腥暴力，到村庄里的档案记录、指标任务与上报压力，羁押与监控并非割裂的两面，而是同一套治理逻辑中环环相扣的链条。这正是这份证词的核心价值所在。它虽未让新疆问题\"凭空出现\"，却让外界无比具象地看到，那些常被宏大且抽象的辞藻（如\"治理\"\"转化\"\"秩序\"）所掩盖的，其实是对个体身体、生活与自由的具体支配与剥夺。"
+  },
+  "date": null,
+  "tags": {
+    "zh": ["维吾尔"]
+  },
+  "relatedMemos": ["memo_0169", "memo_0170", "memo_0171"],
+  "sources": [
+    {
+      "title": "Unprecedented Whistleblower Testimony from Inside China's Police Apparatus Confirms Xinjiang Forced Labor Is Intensifying",
+      "url": "https://victimsofcommunism.org/unprecedented-whistleblower-testimony-from-inside-chinas-police-apparatus-confirms-xinjiang-forced-labor-is-intensifying/"
+    },
+    {
+      "title": "Assessment of human rights concerns in the Xinjiang Uyghur Autonomous Region, People's Republic of China",
+      "url": "https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/22-08-31-final-assesment.pdf"
+    },
+    {
+      "title": "Escaped Policeman from China Provides an Inside Look at the Police State",
+      "url": "https://derspiegel.substack.com/p/escaped-policeman-from-china-provides"
+    }
+  ]
+}
