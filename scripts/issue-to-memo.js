@@ -93,28 +93,23 @@ function parseSources(raw) {
     .filter(Boolean)
     .map((line) => {
       const parts = line.split(/\s*\|\s*/);
-      // Accept three shapes:
-      //   URL
-      //   Title | URL
-      //   Title | URL | Archived URL
-      // For the URL-only form we set title = url as a marker; the publish
-      // pipeline runs fetch-source-titles.js which replaces these with the
-      // real <title> from the page.
+      // Accept two shapes:
+      //   URL                 (bot fills in the title via fetch-source-titles.js)
+      //   Title | URL         (contributor-provided title)
+      // Anything beyond the second `|` is ignored; the link itself can be
+      // an archive URL if that's what the contributor wants to cite.
       let title;
       let url;
-      let archived;
       if (parts.length === 1) {
         const sole = parts[0];
         if (!/^https?:\/\//i.test(sole)) return null;
         title = sole;
         url = sole;
       } else {
-        [title, url, archived] = parts;
+        [title, url] = parts;
         if (!title || !url) return null;
       }
-      const src = { title, url };
-      if (archived) src.archived = archived;
-      return src;
+      return { title, url };
     })
     .filter(Boolean);
 }
@@ -212,7 +207,7 @@ function buildMemo(fields, memoNum) {
   if (fields.sources) {
     const totalLines = fields.sources.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).length;
     if (totalLines > sources.length) {
-      errors.push(`Some source lines couldn't be parsed. Each line must be \`Title | URL\` (with optional \` | ArchivedURL\`). Parsed ${sources.length} of ${totalLines}.`);
+      errors.push(`Some source lines couldn't be parsed. Each line must be either a URL or \`Title | URL\`. Parsed ${sources.length} of ${totalLines}.`);
     }
   }
   if (fields.images) {

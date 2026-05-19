@@ -51,12 +51,12 @@ body:
       label: 来源 / Sources
       description: |
         **每行一条**。最简单的方式：只贴 URL，机器人会自动抓取页面标题。
-        如果想手动指定标题或存档链接：`标题 | URL` 或 `标题 | URL | 存档URL`。
-        **One per line.** The simplest form is just a URL — the bot fetches the page title automatically.
-        To override the title or add an archive link: `Title | URL` or `Title | URL | Archived URL`.
+        如果想手动指定标题：`标题 | URL`。原始链接、存档链接都可以，能访问到内容即可。
+        **One per line.** Simplest form: just a URL — the bot fetches the page title automatically.
+        To set a custom title: `Title | URL`. The link can be the original or an archive URL — whatever works.
       placeholder: |
         https://zh.wikipedia.org/wiki/%E9%9D%9E%E6%B3%95%E7%8C%AE%E8%8A%B1
-        新华社报道 | https://example.com/news | https://web.archive.org/web/...
+        新华社报道 | https://web.archive.org/web/...
     validations:
       required: true
 
