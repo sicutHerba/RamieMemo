@@ -10,17 +10,13 @@
  * production-shaped data.
  *
  * Usage:
- *   node scripts/localize-images.js <path-to-memo.json>
+ *   node scripts/localize-images.js <path-to-memo.json> [--allow-http]
  *
- * Safeguards:
- *   - https:// only by default (http:// allowed only with --allow-http).
- *   - DNS lookup is forced to IPv4 + checked against loopback/private/link-local
- *     ranges before every request (including across redirects). This blocks
- *     SSRF to cloud metadata services (169.254.169.254) and local networks.
- *   - Hard size cap (default 10 MB).
- *   - Max 5 redirects.
- *   - Content-Type must start with `image/`; file extension is derived from it.
- *   - Local paths (starting with `/`) are left untouched.
+ * Network safety lives in scripts/lib/safe-http.js (SSRF defense, redirect
+ * re-vetting, size cap). On top of that this script:
+ *   - rejects responses whose Content-Type is not image/*
+ *   - derives the file extension from the MIME type (URL path as fallback)
+ *   - skips entries whose url already starts with "/"
  *
  * Exit codes:
  *   0  success (memo updated or no images to localize)
@@ -30,14 +26,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const dns = require('dns');
-const https = require('https');
-const http = require('http');
-const { URL } = require('url');
+const { safeGet } = require('./lib/safe-http');
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
-const MAX_REDIRECTS = 5;
-const REQUEST_TIMEOUT_MS = 30_000;
+const IMAGE_ACCEPT = 'image/*,*/*;q=0.8';
 
 const EXT_FOR_MIME = {
   'image/jpeg': 'jpg',
@@ -51,140 +43,9 @@ const EXT_FOR_MIME = {
   'image/heic': 'heic',
 };
 
-function isPrivateIPv4(ip) {
-  const parts = ip.split('.').map(Number);
-  if (parts.length !== 4 || parts.some((n) => Number.isNaN(n))) return true;
-  const [a, b] = parts;
-  if (a === 10) return true;
-  if (a === 127) return true; // loopback
-  if (a === 0) return true;
-  if (a === 169 && b === 254) return true; // link-local incl. cloud metadata
-  if (a === 172 && b >= 16 && b <= 31) return true;
-  if (a === 192 && b === 168) return true;
-  if (a >= 224) return true; // multicast / reserved
-  return false;
-}
-
-function isPrivateIPv6(ip) {
-  const lower = ip.toLowerCase();
-  if (lower === '::1' || lower === '::') return true;
-  if (lower.startsWith('fe80:')) return true; // link-local
-  if (lower.startsWith('fc') || lower.startsWith('fd')) return true; // ULA
-  if (lower.startsWith('ff')) return true; // multicast
-  return false;
-}
-
-function isPrivateAddress(addr, family) {
-  if (family === 4) return isPrivateIPv4(addr);
-  if (family === 6) return isPrivateIPv6(addr);
-  return true;
-}
-
-function resolveSafe(hostname) {
-  return new Promise((resolve, reject) => {
-    dns.lookup(hostname, { all: true }, (err, addrs) => {
-      if (err) return reject(err);
-      const safe = addrs.find((a) => !isPrivateAddress(a.address, a.family));
-      if (!safe) return reject(new Error(`refused: ${hostname} resolves only to private/loopback addresses`));
-      if (addrs.some((a) => isPrivateAddress(a.address, a.family))) {
-        // Mixed result. Be conservative: reject.
-        return reject(new Error(`refused: ${hostname} resolves to a mix of public and private addresses (possible DNS rebinding)`));
-      }
-      resolve(safe);
-    });
-  });
-}
-
-function fetchOnce(urlStr, { allowHttp }) {
-  return new Promise(async (resolve, reject) => {
-    let u;
-    try {
-      u = new URL(urlStr);
-    } catch (e) {
-      return reject(new Error(`invalid URL: ${urlStr}`));
-    }
-    if (u.protocol !== 'https:' && !(allowHttp && u.protocol === 'http:')) {
-      return reject(new Error(`refused scheme ${u.protocol} (use https://)`));
-    }
-    let addr;
-    try {
-      addr = await resolveSafe(u.hostname);
-    } catch (e) {
-      return reject(e);
-    }
-
-    // Connect straight to the IP we just vetted. Setting Host (and servername
-    // for TLS SNI) keeps virtual-hosting and certificate validation working
-    // while neutralizing any DNS-rebinding window.
-    const lib = u.protocol === 'https:' ? https : http;
-    const reqOpts = {
-      host: addr.address,
-      port: u.port || (u.protocol === 'https:' ? 443 : 80),
-      path: u.pathname + u.search,
-      method: 'GET',
-      family: addr.family,
-      headers: {
-        Host: u.host,
-        'User-Agent': 'ramie-memo-bot/1.0 (+https://github.com/sicutHerba/RamieMemo)',
-        Accept: 'image/*,*/*;q=0.8',
-      },
-      timeout: REQUEST_TIMEOUT_MS,
-    };
-    if (u.protocol === 'https:') reqOpts.servername = u.hostname;
-
-    const req = lib.request(reqOpts, (res) => {
-      const status = res.statusCode || 0;
-      if (status >= 300 && status < 400 && res.headers.location) {
-        res.resume();
-        return resolve({ redirect: new URL(res.headers.location, urlStr).toString() });
-      }
-      if (status !== 200) {
-        res.resume();
-        return reject(new Error(`HTTP ${status} from ${urlStr}`));
-      }
-      const len = Number(res.headers['content-length'] || 0);
-      if (len && len > MAX_BYTES) {
-        res.destroy();
-        return reject(new Error(`content-length ${len} exceeds limit ${MAX_BYTES}`));
-      }
-      const chunks = [];
-      let total = 0;
-      res.on('data', (c) => {
-        total += c.length;
-        if (total > MAX_BYTES) {
-          res.destroy(new Error(`body exceeds limit ${MAX_BYTES}`));
-          return;
-        }
-        chunks.push(c);
-      });
-      res.on('end', () => {
-        resolve({ contentType: res.headers['content-type'] || '', body: Buffer.concat(chunks) });
-      });
-      res.on('error', reject);
-    });
-    req.on('timeout', () => req.destroy(new Error('request timeout')));
-    req.on('error', reject);
-    req.end();
-  });
-}
-
-async function downloadSafe(urlStr, opts) {
-  let current = urlStr;
-  for (let hops = 0; hops <= MAX_REDIRECTS; hops++) {
-    const r = await fetchOnce(current, opts);
-    if (r.redirect) {
-      current = r.redirect;
-      continue;
-    }
-    return { ...r, finalUrl: current };
-  }
-  throw new Error(`too many redirects starting from ${urlStr}`);
-}
-
 function extFor(contentType, fallbackUrl) {
   const mime = contentType.split(';')[0].trim().toLowerCase();
   if (EXT_FOR_MIME[mime]) return EXT_FOR_MIME[mime];
-  // Last-resort: try the URL path.
   try {
     const p = new URL(fallbackUrl).pathname;
     const m = p.match(/\.([a-z0-9]{2,5})$/i);
@@ -222,7 +83,11 @@ async function localizeMemo(memoPath, { allowHttp }) {
     }
     try {
       console.log(`images[${i}]: downloading ${url}`);
-      const { contentType, body, finalUrl } = await downloadSafe(url, { allowHttp });
+      const { contentType, body, finalUrl } = await safeGet(url, {
+        allowHttp,
+        accept: IMAGE_ACCEPT,
+        maxBytes: MAX_BYTES,
+      });
       if (!/^image\//i.test(contentType)) {
         throw new Error(`unexpected content-type "${contentType}" (must be image/*)`);
       }
@@ -239,8 +104,6 @@ async function localizeMemo(memoPath, { allowHttp }) {
     }
   }
 
-  // Write the memo back regardless (any successfully localized entries should
-  // be persisted). Trailing newline matches the rest of the data tree.
   fs.writeFileSync(memoPath, JSON.stringify(memo, null, 2) + '\n');
 
   if (failures.length) {
@@ -275,4 +138,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { localizeMemo, isPrivateIPv4, isPrivateIPv6 };
+module.exports = { localizeMemo };

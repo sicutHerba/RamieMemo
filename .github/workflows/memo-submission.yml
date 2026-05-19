@@ -3,6 +3,8 @@ name: Memo Submission
 on:
   issues:
     types: [opened, edited, labeled, reopened]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
@@ -10,19 +12,55 @@ permissions:
   pull-requests: write
 
 jobs:
-  # --------------------------------------------------------------------------
-  # 1. Validate & preview a submission when an issue with the submission label
-  #    is opened or edited. Posts a preview comment with the parsed memo.
-  # --------------------------------------------------------------------------
-  validate:
-    name: Validate submission
-    if: >
-      (github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'reopened')
-      && contains(github.event.issue.labels.*.name, 'memo-submission')
+  # ---------------------------------------------------------------------------
+  # prepare: build (or rebuild) a DRAFT PR for a memo submission.
+  #   Triggered by an issue open/edit OR by a maintainer comment of `/regenerate`.
+  #   If a draft PR already exists with manual edits, refuses to overwrite
+  #   unless explicitly forced via /regenerate.
+  # ---------------------------------------------------------------------------
+  prepare:
+    if: |
+      (
+        github.event_name == 'issues'
+        && (github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'reopened')
+        && github.event.issue.state == 'open'
+        && contains(github.event.issue.labels.*.name, 'memo-submission')
+      ) || (
+        github.event_name == 'issue_comment'
+        && github.event.action == 'created'
+        && github.event.issue.pull_request == null
+        && github.event.issue.state == 'open'
+        && startsWith(github.event.comment.body, '/regenerate')
+        && contains(github.event.issue.labels.*.name, 'memo-submission')
+      )
     runs-on: ubuntu-latest
     steps:
+      - name: Verify /regenerate sender (if applicable)
+        id: mode
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const isCmd = context.eventName === 'issue_comment'
+              && context.payload.comment
+              && context.payload.comment.body.trim().startsWith('/regenerate');
+            if (isCmd) {
+              const actor = context.payload.comment.user.login;
+              const { owner, repo } = context.repo;
+              const { data: perm } = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner, repo, username: actor,
+              });
+              if (!['admin', 'maintain', 'write'].includes(perm.permission)) {
+                core.setFailed(`/regenerate from @${actor} ignored: write access required.`);
+                return;
+              }
+              core.info(`/regenerate accepted from @${actor}`);
+            }
+            core.setOutput('force', isCmd ? 'true' : 'false');
+
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -50,147 +88,117 @@ jobs:
 
           😅 抱歉，机器人在解析这个 Issue 时崩溃了，没能给出预览。
           这通常是 Issue 正文格式不匹配「提交新备忘录」模板导致的。
-
-          如果你想提交新条目，请使用模板，它会帮你填好所有字段：
-          👉 **[使用「提交新备忘录」模板](../../issues/new?template=new-memo.yml)**
+          请使用模板：👉 **[使用「提交新备忘录」模板](../../issues/new?template=new-memo.yml)**
 
           ---
 
           😅 Sorry — the bot crashed while parsing this issue and couldn't produce a preview.
-          This usually means the body doesn't match the **Submit New Memo** template.
-
-          If you'd like to submit a memo, please use the template — it walks you through every field:
-          👉 **[Open a new memo with the template](../../issues/new?template=new-memo.yml)**
+          Please use the template: 👉 **[Open a new memo with the template](../../issues/new?template=new-memo.yml)**
           EOF
           fi
 
-      - name: Comment preview on issue
-        if: always()
+      - name: Look up existing draft PR
+        id: pr_lookup
         uses: actions/github-script@v7
         env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        with:
+          script: |
+            const branch = `memo/issue-${process.env.ISSUE_NUMBER}`;
+            const { owner, repo } = context.repo;
+            const { data: prs } = await github.rest.pulls.list({
+              owner, repo, head: `${owner}:${branch}`, state: 'open',
+            });
+            const pr = prs[0];
+            let hasManualEdits = false;
+            if (pr) {
+              const { data: commits } = await github.rest.pulls.listCommits({
+                owner, repo, pull_number: pr.number, per_page: 100,
+              });
+              hasManualEdits = commits.some(c => {
+                const email = c.commit && c.commit.author && c.commit.author.email;
+                return email && email !== 'ramie-memo-bot@users.noreply.github.com';
+              });
+            }
+            core.setOutput('branch', branch);
+            core.setOutput('pr_number', pr ? String(pr.number) : '');
+            core.setOutput('pr_url', pr ? pr.html_url : '');
+            core.setOutput('has_manual_edits', hasManualEdits ? 'true' : 'false');
+
+      - name: Decide next action
+        id: action
+        env:
           PARSE_OUTCOME: ${{ steps.parse.outcome }}
-        with:
-          script: |
-            const fs = require('fs');
-            const body = fs.readFileSync('preview.md', 'utf8');
-            const marker = '<!-- memo-preview-bot -->';
-            const footer = process.env.PARSE_OUTCOME === 'success'
-              ? '\n\n_这条评论会在你每次编辑 Issue 时自动更新。_ / _This comment auto-updates when the issue is edited._'
-              : '\n\n_修好后编辑此 Issue（右上角 `···` → Edit），机器人会自动重新校验。_ / _After fixing, edit the issue and the bot will re-check automatically._';
-            const fullBody = `${marker}\n${body}${footer}`;
-            const { owner, repo } = context.repo;
-            const issue_number = context.issue.number;
-            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
-            const existing = comments.find(c => c.body && c.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: fullBody });
-            } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body: fullBody });
-            }
+          HAS_MANUAL_EDITS: ${{ steps.pr_lookup.outputs.has_manual_edits }}
+          PR_NUMBER: ${{ steps.pr_lookup.outputs.pr_number }}
+          FORCE: ${{ steps.mode.outputs.force }}
+        run: |
+          set -eu
+          if [ "$PARSE_OUTCOME" != "success" ]; then
+            NEXT=skip-parse-failed
+          elif [ -n "$PR_NUMBER" ] && [ "$HAS_MANUAL_EDITS" = "true" ] && [ "$FORCE" != "true" ]; then
+            NEXT=skip-manual-edits
+          else
+            NEXT=build
+          fi
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "Decided: next=$NEXT"
 
-      # Don't fail the workflow when parsing fails: the issue author already got
-      # a friendly comment explaining what to fix. A red ❌ on their issue would
-      # only add anxiety. The `publish` job is independently gated on the
-      # `approved` label, so a maintainer cannot accidentally publish a broken
-      # submission anyway.
-
-  # --------------------------------------------------------------------------
-  # 2. When a maintainer adds the `approved` label to a memo-submission issue,
-  #    generate the memo file, rebuild the index, and open a pull request.
-  # --------------------------------------------------------------------------
-  publish:
-    name: Build PR from approved submission
-    if: >
-      github.event.action == 'labeled'
-      && github.event.label.name == 'approved'
-      && contains(github.event.issue.labels.*.name, 'memo-submission')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Verify approver is a maintainer
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const actor = context.payload.sender.login;
-            const { owner, repo } = context.repo;
-            try {
-              const { data: perm } = await github.rest.repos.getCollaboratorPermissionLevel({ owner, repo, username: actor });
-              const level = perm.permission;
-              core.info(`Approver ${actor} has permission: ${level}`);
-              if (!['admin', 'maintain', 'write'].includes(level)) {
-                core.setFailed(`User ${actor} lacks write access; refusing to publish.`);
-              }
-            } catch (e) {
-              core.setFailed(`Failed to verify approver permissions: ${e.message}`);
-            }
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate memo JSON from issue
-        id: gen
+      - name: Generate, enrich, localize, validate, index, push
+        if: steps.action.outputs.next == 'build'
+        id: build
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          BRANCH: ${{ steps.pr_lookup.outputs.branch }}
         run: |
           set -euo pipefail
+
+          # 1. Generate the memo file from the issue body.
           node scripts/issue-to-memo.js --out-summary preview.md | tee memo-output.txt
           {
-            grep '^memo_id='     memo-output.txt
-            grep '^memo_folder=' memo-output.txt
-            grep '^memo_file=' memo-output.txt
+            grep '^memo_id='       memo-output.txt
+            grep '^memo_folder='   memo-output.txt
+            grep '^memo_file='     memo-output.txt
+            grep '^memo_type='     memo-output.txt
+            grep '^memo_title_zh=' memo-output.txt
           } >> "$GITHUB_OUTPUT"
+          MEMO_FILE=$(grep '^memo_file=' memo-output.txt | cut -d= -f2-)
+          MEMO_ID=$(grep '^memo_id=' memo-output.txt | cut -d= -f2-)
 
-      - name: Localize remote images
-        env:
-          MEMO_FILE: ${{ steps.gen.outputs.memo_file }}
-        run: node scripts/localize-images.js "$MEMO_FILE"
+          # 2. Enrich URL-only sources with their real <title>.
+          node scripts/fetch-source-titles.js "$MEMO_FILE"
 
-      - name: Validate data
-        run: npm run validate
+          # 3. Download remote images (SSRF-safe) and rewrite to local paths.
+          node scripts/localize-images.js "$MEMO_FILE"
 
-      - name: Rebuild index
-        run: npm run build-index
+          # 4. Validate the data.
+          npm run validate
 
-      - name: Configure git
-        run: |
+          # 5. Rebuild the index.
+          npm run build-index
+
+          # 6. Commit and force-push to a stable per-issue branch.
           git config user.name "ramie-memo-bot"
           git config user.email "ramie-memo-bot@users.noreply.github.com"
-
-      - name: Create branch, commit, push
-        id: branch
-        env:
-          MEMO_ID: ${{ steps.gen.outputs.memo_id }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          set -euo pipefail
-          # Include run id so retries after a partial failure get a fresh branch
-          # instead of colliding with the previous attempt's remote ref.
-          BRANCH="memo/${MEMO_ID}-from-issue-${ISSUE_NUMBER}-run-${RUN_ID}"
-          git checkout -b "$BRANCH"
+          git checkout -B "$BRANCH"
           git add public/data/memos public/images/memos
-          git commit -m "feat(memo): add ${MEMO_ID} (from issue #${ISSUE_NUMBER})"
-          git push --set-upstream origin "$BRANCH"
-          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          if git diff --cached --quiet; then
+            echo "No changes to commit (memo identical to existing branch)."
+          else
+            git commit -m "feat(memo): add ${MEMO_ID} (from issue #${ISSUE_NUMBER})"
+          fi
+          git push --force origin "$BRANCH"
 
-      - name: Open Pull Request
+      - name: Open or update draft PR
+        if: steps.action.outputs.next == 'build'
         id: pr
         uses: actions/github-script@v7
         env:
-          BRANCH: ${{ steps.branch.outputs.branch }}
-          MEMO_ID: ${{ steps.gen.outputs.memo_id }}
-          MEMO_FILE: ${{ steps.gen.outputs.memo_file }}
+          BRANCH: ${{ steps.pr_lookup.outputs.branch }}
+          EXISTING_PR: ${{ steps.pr_lookup.outputs.pr_number }}
+          MEMO_ID: ${{ steps.build.outputs.memo_id }}
+          MEMO_FILE: ${{ steps.build.outputs.memo_file }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         with:
           script: |
@@ -203,27 +211,181 @@ jobs:
               '',
               `Auto-generated from issue submission. Adds memo \`${process.env.MEMO_ID}\` at \`${process.env.MEMO_FILE}\` and rebuilds \`index.json\`.`,
               '',
+              `**Maintainers**: feel free to edit any file in this PR directly — the bot will not overwrite manual edits unless someone comments \`/regenerate\` on the issue. Add the \`approved\` label to the issue to squash-merge.`,
+              '',
               preview,
             ].join('\n');
-            const { data: pr } = await github.rest.pulls.create({
-              owner, repo,
-              head: process.env.BRANCH,
-              base: 'main',
-              title: `feat(memo): add ${process.env.MEMO_ID} (from issue #${issueNumber})`,
-              body,
-              maintainer_can_modify: true,
+            const title = `feat(memo): add ${process.env.MEMO_ID} (from issue #${issueNumber})`;
+            let pr;
+            if (process.env.EXISTING_PR) {
+              const { data: updated } = await github.rest.pulls.update({
+                owner, repo, pull_number: Number(process.env.EXISTING_PR), title, body,
+              });
+              pr = updated;
+            } else {
+              const { data: created } = await github.rest.pulls.create({
+                owner, repo, head: process.env.BRANCH, base: 'main',
+                title, body, draft: true, maintainer_can_modify: true,
+              });
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: created.number,
+                labels: ['memo-submission', 'auto-generated'],
+              });
+              pr = created;
+            }
+            core.setOutput('pr_number', String(pr.number));
+            core.setOutput('pr_url', pr.html_url);
+
+      - name: Rename issue title if still default
+        if: steps.action.outputs.next == 'build'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          MEMO_TITLE_ZH: ${{ steps.build.outputs.memo_title_zh }}
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const t = process.env.MEMO_TITLE_ZH;
+            if (!t) return;
+            const isDefault = !issue.title
+              || issue.title === '[Memo] 新条目 / new entry'
+              || /^\[Memo\]\s*$/.test(issue.title);
+            if (!isDefault) return;
+            const { owner, repo } = context.repo;
+            await github.rest.issues.update({
+              owner, repo, issue_number: issue.number, title: `[Memo] ${t}`,
             });
-            await github.rest.issues.addLabels({
-              owner, repo,
-              issue_number: pr.number,
-              labels: ['memo-submission', 'auto-generated'],
+
+      - name: Post or update sticky status comment
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          NEXT: ${{ steps.action.outputs.next }}
+          PR_URL: ${{ steps.pr.outputs.pr_url || steps.pr_lookup.outputs.pr_url }}
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- memo-preview-bot -->';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const next = process.env.NEXT;
+            const prUrl = process.env.PR_URL;
+            let body;
+            if (next === 'skip-parse-failed' || !next) {
+              const preview = fs.existsSync('preview.md') ? fs.readFileSync('preview.md', 'utf8') : '';
+              body = preview + '\n\n_修好后编辑此 Issue（右上角 `···` → Edit），机器人会自动重新校验。_\n_After fixing, edit the issue and the bot will re-check automatically._';
+            } else if (next === 'skip-manual-edits') {
+              body = [
+                '⚠️ 已检测到 PR 中有人工修改，本次不会自动覆盖。',
+                '',
+                `- 想直接保留 PR 上的修改 → 由维护者审核后给本 Issue 加 \`approved\` 标签即可合并。`,
+                `- 想用 Issue 最新内容**重新生成** → 维护者在本 Issue 评论 \`/regenerate\`，会覆盖 PR 上的人工修改。`,
+                `- 想细调 → 直接到 ${prUrl} 上改文件。`,
+                '',
+                '---',
+                '',
+                '⚠️ Manual edits detected on the draft PR — skipping auto-overwrite.',
+                '',
+                `- Keep current PR edits → maintainer adds \`approved\` to merge.`,
+                `- Rebuild from latest issue body → maintainer comments \`/regenerate\` here (overwrites manual edits).`,
+                `- Fine-tune → edit ${prUrl} directly.`,
+              ].join('\n');
+            } else if (next === 'build' && !prUrl) {
+              body = [
+                '⚠️ 解析成功但后续步骤失败（如生成/推送/PR 开启）。',
+                '详情请查看 Actions 运行结果；修复后重新编辑本 Issue 即可重试。',
+                '',
+                '---',
+                '',
+                '⚠️ Parsing succeeded but a later step failed (generate / push / open PR).',
+                'See the Actions tab for details; editing this issue again will retry.',
+              ].join('\n');
+            } else {
+              body = [
+                `✅ 草稿 PR 已就绪：${prUrl}`,
+                '',
+                '在 PR 的 *Files changed* 标签里可以看到生成的 JSON 和图片预览。维护者审核（必要时直接在 PR 上修改），然后给**本 Issue** 添加 `approved` 标签即可自动合并。',
+                '如果想让机器人根据本 Issue 最新内容重新生成 PR（会覆盖 PR 上的人工修改），评论 `/regenerate`。',
+                '',
+                '---',
+                '',
+                `✅ Draft PR ready: ${prUrl}`,
+                '',
+                'See the generated JSON and image previews in the PR\'s *Files changed* tab. Maintainers can review (and edit the PR directly if needed), then add the `approved` label **to this issue** to auto-merge.',
+                'To rebuild the PR from the latest issue body (overwriting any manual edits), comment `/regenerate`.',
+              ].join('\n');
+            }
+            const fullBody = `${marker}\n${body}`;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: fullBody });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: fullBody });
+            }
+
+  # ---------------------------------------------------------------------------
+  # finalize: when a maintainer adds `approved` to the issue, undraft the PR
+  # and squash-merge it. deploy.yml takes over from there.
+  # ---------------------------------------------------------------------------
+  finalize:
+    if: |
+      github.event_name == 'issues'
+      && github.event.action == 'labeled'
+      && github.event.label.name == 'approved'
+      && github.event.issue.state == 'open'
+      && contains(github.event.issue.labels.*.name, 'memo-submission')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify approver is a maintainer
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const actor = context.payload.sender.login;
+            const { owner, repo } = context.repo;
+            const { data: perm } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner, repo, username: actor,
+            });
+            if (!['admin', 'maintain', 'write'].includes(perm.permission)) {
+              core.setFailed(`User @${actor} lacks write access; refusing to merge.`);
+            }
+
+      - name: Undraft and squash-merge the PR
+        uses: actions/github-script@v7
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issueNumber = Number(process.env.ISSUE_NUMBER);
+            const branch = `memo/issue-${issueNumber}`;
+            const { data: prs } = await github.rest.pulls.list({
+              owner, repo, head: `${owner}:${branch}`, state: 'open',
+            });
+            const pr = prs[0];
+            if (!pr) {
+              core.setFailed(`No open PR found for branch ${branch}. Did the prepare workflow run?`);
+              return;
+            }
+            if (pr.draft) {
+              const { repository: { pullRequest: { id } } } = await github.graphql(
+                `query($owner:String!,$repo:String!,$num:Int!){
+                   repository(owner:$owner,name:$repo){pullRequest(number:$num){id}}
+                 }`,
+                { owner, repo, num: pr.number },
+              );
+              await github.graphql(
+                `mutation($id:ID!){markPullRequestReadyForReview(input:{pullRequestId:$id}){pullRequest{id}}}`,
+                { id },
+              );
+            }
+            await github.rest.pulls.merge({
+              owner, repo, pull_number: pr.number, merge_method: 'squash',
             });
             await github.rest.issues.createComment({
-              owner, repo,
-              issue_number: issueNumber,
-              body: `🤖 Opened pull request #${pr.number} for this submission: ${pr.html_url}\n\nThe standard build/test/validate pipeline will run on the PR. Merge it to publish.`,
+              owner, repo, issue_number: issueNumber,
+              body: `🚀 已合并 PR #${pr.number}。\`deploy.yml\` 接下来会校验并部署，如失败请查看 Actions 运行结果。\n\n🚀 Merged PR #${pr.number}. \`deploy.yml\` will now validate and deploy — watch the Actions tab if anything fails.`,
             });
-            core.setOutput('pr_url', pr.html_url);
 
       - name: Report failure on issue
         if: failure()
@@ -234,25 +396,23 @@ jobs:
             const issue_number = context.payload.issue.number;
             const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
             const body = [
-              '😬 自动发布没能完成 / Automated publication didn\'t finish',
+              '😬 自动合并没能完成 / Automated merge didn\'t finish',
               '',
-              '机器人尝试根据这个 Issue 生成 PR 时遇到了问题。可能的原因：',
-              '- 解析或校验失败（请检查上方的预览评论）；',
-              '- 维护者尚未启用 "Allow GitHub Actions to create and approve pull requests"；',
-              '- 临时的网络/CI 故障。',
+              '可能的原因：',
+              '- 还没有为本 Issue 生成草稿 PR（再次编辑 Issue 触发 `prepare`）；',
+              '- 仓库未启用 *Allow squash merging* 或 *Allow auto-merge*；',
+              '- PR 有未解决的冲突或评审要求。',
               '',
-              `详情见 [本次工作流运行](${runUrl})。`,
-              '`approved` 标签已被自动移除——修复后请由维护者重新添加该标签即可重试。',
+              `详情见 [本次工作流运行](${runUrl})。\`approved\` 标签已自动移除，修复后可重新添加。`,
               '',
               '---',
               '',
-              'The bot tried to turn this issue into a pull request but ran into a problem. Common causes:',
-              '- parsing or validation failed (see the preview comment above);',
-              '- maintainers haven\'t enabled *Allow GitHub Actions to create and approve pull requests*;',
-              '- a transient CI/network hiccup.',
+              'Common causes:',
+              '- no draft PR exists yet (edit the issue to retrigger `prepare`);',
+              '- the repo doesn\'t have *Allow squash merging* enabled;',
+              '- the PR has conflicts or required-review settings blocking the merge.',
               '',
-              `Details: [workflow run](${runUrl}).`,
-              'The `approved` label has been removed automatically — a maintainer can re-add it to retry once the cause is fixed.',
+              `Details: [workflow run](${runUrl}). The \`approved\` label has been removed; a maintainer can re-add it after fixing.`,
             ].join('\n');
             await github.rest.issues.createComment({ owner, repo, issue_number, body });
             await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'approved' }).catch(() => {});

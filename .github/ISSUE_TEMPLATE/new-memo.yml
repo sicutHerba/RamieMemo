@@ -1,6 +1,6 @@
 name: 📝 提交新备忘录 / Submit New Memo
 description: 通过结构化表单提交一条新的备忘录条目。Submit a new memo entry via structured form.
-title: "[Memo] "
+title: "[Memo] 新条目 / new entry"
 labels: ["memo-submission"]
 body:
   - type: markdown
@@ -50,11 +50,13 @@ body:
     attributes:
       label: 来源 / Sources
       description: |
-        每行一条参考资料，格式 `标题 | URL`，或带存档链接 `标题 | URL | 存档URL`。
-        One source per line in the form `Title | URL`, optionally `Title | URL | Archived URL`.
+        **每行一条**。最简单的方式：只贴 URL，机器人会自动抓取页面标题。
+        如果想手动指定标题或存档链接：`标题 | URL` 或 `标题 | URL | 存档URL`。
+        **One per line.** The simplest form is just a URL — the bot fetches the page title automatically.
+        To override the title or add an archive link: `Title | URL` or `Title | URL | Archived URL`.
       placeholder: |
-        维基百科：非法献花 | https://zh.wikipedia.org/wiki/%E9%9D%9E%E6%B3%95%E7%8C%AE%E8%8A%B1 | https://web.archive.org/web/...
-        新华社报道 | https://example.com/news
+        https://zh.wikipedia.org/wiki/%E9%9D%9E%E6%B3%95%E7%8C%AE%E8%8A%B1
+        新华社报道 | https://example.com/news | https://web.archive.org/web/...
     validations:
       required: true
 

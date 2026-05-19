@@ -93,8 +93,25 @@ function parseSources(raw) {
     .filter(Boolean)
     .map((line) => {
       const parts = line.split(/\s*\|\s*/);
-      const [title, url, archived] = parts;
-      if (!title || !url) return null;
+      // Accept three shapes:
+      //   URL
+      //   Title | URL
+      //   Title | URL | Archived URL
+      // For the URL-only form we set title = url as a marker; the publish
+      // pipeline runs fetch-source-titles.js which replaces these with the
+      // real <title> from the page.
+      let title;
+      let url;
+      let archived;
+      if (parts.length === 1) {
+        const sole = parts[0];
+        if (!/^https?:\/\//i.test(sole)) return null;
+        title = sole;
+        url = sole;
+      } else {
+        [title, url, archived] = parts;
+        if (!title || !url) return null;
+      }
       const src = { title, url };
       if (archived) src.archived = archived;
       return src;
@@ -331,6 +348,9 @@ function main() {
   console.log(`memo_folder=${folder}`);
   console.log(`memo_file=${relFile}`);
   console.log(`memo_type=${TYPE_NAME_BY_NUM[memo.type]}`);
+  // Sanitize for $GITHUB_OUTPUT: single line, no leading/trailing whitespace.
+  const titleZhOneLine = (memo.title && memo.title.zh ? memo.title.zh : '').replace(/\s+/g, ' ').trim();
+  console.log(`memo_title_zh=${titleZhOneLine}`);
 
   if (dryRun) {
     console.log('Dry run: no files written.');
