@@ -1,0 +1,46 @@
+{
+  "id": "memo_0267",
+  "type": 1,
+  "updatedAt": "2026-05-19T15:07:03.128Z",
+  "title": {
+    "zh": "一名女性幸存者如何拆开“职业培训”叙事"
+  },
+  "content": {
+    "zh": "2021年5月6日，Tursunay Ziyawudun（图尔逊娜依·孜亚吾敦）以“幸存者和倡议者”身份出席美国众议院关于新疆问题的听证会。在听证记录中，她称自己来自 Kunes County（中文地名待确认），并说自己曾在 Kunes 的集中营中度过时间。\n“职业培训”通常让人想到教育、技能和就业。但据其证词，她从哈萨克斯坦回到新疆后先遭盘问，护照随后被没收，几个月后被送进营地。她说，营地里的人被告知“思想有问题”，要接受“教育”；如果提问，就会被打。第二次入营后，她称自己被关押十个多月，日常包括拥挤牢房、监控摄像头、角落里的便桶、饥饿、不明药物注射，以及每天宣誓效忠中国政府、否定自己的信仰。\n证词中最重的部分，是性暴力、酷刑与生殖控制。她称，女孩会被带走，几天后才被送回；她本人也曾被带走，并称遭到电击器侵入生殖道的酷刑。她还称，曾有命令要求所有女性接受绝育或放置宫内节育器（IUD）。这些具体动作，使“职业培训”这个词无法继续保持中性。"
+  },
+  "date": "0506",
+  "tags": {
+    "zh": [
+      "维吾尔",
+      "女性"
+    ]
+  },
+  "relatedMemos": [
+    "memo_0171",
+    "memo_0176",
+    "memo_0169",
+    "memo_0140"
+  ],
+  "sources": [
+    {
+      "title": "The Atrocities Against Uyghurs and Other Minorities in Xinjiang | Committee Repository | U.S. House of Representatives",
+      "url": "https://docs.house.gov/Committee/Calendar/ByEvent.aspx?EventID=112574"
+    },
+    {
+      "title": "https://www.congress.gov/event/117th-congress/house-event/LC67612/text",
+      "url": "https://www.congress.gov/event/117th-congress/house-event/LC67612/text"
+    },
+    {
+      "title": "https://www.ohchr.org/en/documents/country-reports/ohchr-assessment-human-rights-concerns-xinjiang-uyghur-autonomous-region",
+      "url": "https://www.ohchr.org/en/documents/country-reports/ohchr-assessment-human-rights-concerns-xinjiang-uyghur-autonomous-region"
+    },
+    {
+      "title": "https://xinjiang.amnesty.org",
+      "url": "https://xinjiang.amnesty.org"
+    },
+    {
+      "title": "'Their goal is to destroy everyone': Uighur camp detainees allege systematic rape",
+      "url": "https://www.bbc.com/news/world-asia-china-55794071"
+    }
+  ]
+}
