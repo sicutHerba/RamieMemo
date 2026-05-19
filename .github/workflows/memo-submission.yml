@@ -216,7 +216,7 @@ jobs:
               '',
               `Auto-generated from issue submission. Adds memo \`${process.env.MEMO_ID}\` at \`${process.env.MEMO_FILE}\` and rebuilds \`index.json\`.`,
               '',
-              `**Maintainers**: feel free to edit any file in this PR directly — the bot will not overwrite manual edits unless someone comments \`/regenerate\` on the issue. Add the \`approved\` label to the issue to squash-merge.`,
+              `**Maintainers**: review the diff, edit any file in this PR directly if needed, then click **Merge** when ready. The bot will **not** overwrite manual edits on this PR unless someone comments \`/regenerate\` on the original issue.`,
               '',
               preview,
             ].join('\n');
@@ -230,7 +230,7 @@ jobs:
             } else {
               const { data: created } = await github.rest.pulls.create({
                 owner, repo, head: process.env.BRANCH, base: 'main',
-                title, body, draft: true, maintainer_can_modify: true,
+                title, body, maintainer_can_modify: true,
               });
               await github.rest.issues.addLabels({
                 owner, repo, issue_number: created.number,
@@ -283,17 +283,15 @@ jobs:
               body = [
                 '⚠️ 已检测到 PR 中有人工修改，本次不会自动覆盖。',
                 '',
-                `- 想直接保留 PR 上的修改 → 由维护者审核后给本 Issue 加 \`approved\` 标签即可合并。`,
-                `- 想用 Issue 最新内容**重新生成** → 维护者在本 Issue 评论 \`/regenerate\`，会覆盖 PR 上的人工修改。`,
-                `- 想细调 → 直接到 ${prUrl} 上改文件。`,
+                `- 保留 PR 上的修改 → 直接到 ${prUrl} 审核后 Merge 即可。`,
+                `- 用 Issue 最新内容**重新生成** → 评论 \`/regenerate\`，会覆盖 PR 上的修改。`,
                 '',
                 '---',
                 '',
-                '⚠️ Manual edits detected on the draft PR — skipping auto-overwrite.',
+                '⚠️ Manual edits detected on the PR — skipping auto-overwrite.',
                 '',
-                `- Keep current PR edits → maintainer adds \`approved\` to merge.`,
-                `- Rebuild from latest issue body → maintainer comments \`/regenerate\` here (overwrites manual edits).`,
-                `- Fine-tune → edit ${prUrl} directly.`,
+                `- Keep current edits → review and merge ${prUrl} directly.`,
+                `- Rebuild from latest issue body → comment \`/regenerate\` here (overwrites manual edits).`,
               ].join('\n');
             } else if (next === 'build' && !prUrl) {
               body = [
@@ -307,17 +305,17 @@ jobs:
               ].join('\n');
             } else {
               body = [
-                `✅ 草稿 PR 已就绪：${prUrl}`,
+                `✅ PR 已就绪：${prUrl}`,
                 '',
-                '在 PR 的 *Files changed* 标签里可以看到生成的 JSON 和图片预览。维护者审核（必要时直接在 PR 上修改），然后给**本 Issue** 添加 `approved` 标签即可自动合并。',
-                '如果想让机器人根据本 Issue 最新内容重新生成 PR（会覆盖 PR 上的人工修改），评论 `/regenerate`。',
+                '在 PR 的 *Files changed* 里查看生成的 JSON、下载下来的图片和 `index.json` 变化。需要调整直接在 PR 上改，满意后点 **Merge**。',
+                '想让机器人根据本 Issue 最新内容重新生成 PR（会覆盖 PR 上的人工修改），评论 `/regenerate`。',
                 '',
                 '---',
                 '',
-                `✅ Draft PR ready: ${prUrl}`,
+                `✅ PR ready: ${prUrl}`,
                 '',
-                'See the generated JSON and image previews in the PR\'s *Files changed* tab. Maintainers can review (and edit the PR directly if needed), then add the `approved` label **to this issue** to auto-merge.',
-                'To rebuild the PR from the latest issue body (overwriting any manual edits), comment `/regenerate`.',
+                'Review the generated JSON, downloaded images, and `index.json` diff in the *Files changed* tab. Edit the PR directly if anything needs tweaking, then click **Merge**.',
+                'To rebuild the PR from the latest issue body (overwriting any manual edits on the PR), comment `/regenerate` here.',
               ].join('\n');
             }
             const fullBody = `${marker}\n${body}`;
@@ -328,96 +326,3 @@ jobs:
             } else {
               await github.rest.issues.createComment({ owner, repo, issue_number, body: fullBody });
             }
-
-  # ---------------------------------------------------------------------------
-  # finalize: when a maintainer adds `approved` to the issue, undraft the PR
-  # and squash-merge it. deploy.yml takes over from there.
-  # ---------------------------------------------------------------------------
-  finalize:
-    if: |
-      github.event_name == 'issues'
-      && github.event.action == 'labeled'
-      && github.event.label.name == 'approved'
-      && github.event.issue.state == 'open'
-      && contains(github.event.issue.labels.*.name, 'memo-submission')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Verify approver is a maintainer
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const actor = context.payload.sender.login;
-            const { owner, repo } = context.repo;
-            const { data: perm } = await github.rest.repos.getCollaboratorPermissionLevel({
-              owner, repo, username: actor,
-            });
-            if (!['admin', 'maintain', 'write'].includes(perm.permission)) {
-              core.setFailed(`User @${actor} lacks write access; refusing to merge.`);
-            }
-
-      - name: Undraft and squash-merge the PR
-        uses: actions/github-script@v7
-        env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const issueNumber = Number(process.env.ISSUE_NUMBER);
-            const branch = `memo/issue-${issueNumber}`;
-            const { data: prs } = await github.rest.pulls.list({
-              owner, repo, head: `${owner}:${branch}`, state: 'open',
-            });
-            const pr = prs[0];
-            if (!pr) {
-              core.setFailed(`No open PR found for branch ${branch}. Did the prepare workflow run?`);
-              return;
-            }
-            if (pr.draft) {
-              const { repository: { pullRequest: { id } } } = await github.graphql(
-                `query($owner:String!,$repo:String!,$num:Int!){
-                   repository(owner:$owner,name:$repo){pullRequest(number:$num){id}}
-                 }`,
-                { owner, repo, num: pr.number },
-              );
-              await github.graphql(
-                `mutation($id:ID!){markPullRequestReadyForReview(input:{pullRequestId:$id}){pullRequest{id}}}`,
-                { id },
-              );
-            }
-            await github.rest.pulls.merge({
-              owner, repo, pull_number: pr.number, merge_method: 'squash',
-            });
-            await github.rest.issues.createComment({
-              owner, repo, issue_number: issueNumber,
-              body: `🚀 已合并 PR #${pr.number}。\`deploy.yml\` 接下来会校验并部署，如失败请查看 Actions 运行结果。\n\n🚀 Merged PR #${pr.number}. \`deploy.yml\` will now validate and deploy — watch the Actions tab if anything fails.`,
-            });
-
-      - name: Report failure on issue
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const issue_number = context.payload.issue.number;
-            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
-            const body = [
-              '😬 自动合并没能完成 / Automated merge didn\'t finish',
-              '',
-              '可能的原因：',
-              '- 还没有为本 Issue 生成草稿 PR（再次编辑 Issue 触发 `prepare`）；',
-              '- 仓库未启用 *Allow squash merging* 或 *Allow auto-merge*；',
-              '- PR 有未解决的冲突或评审要求。',
-              '',
-              `详情见 [本次工作流运行](${runUrl})。\`approved\` 标签已自动移除，修复后可重新添加。`,
-              '',
-              '---',
-              '',
-              'Common causes:',
-              '- no draft PR exists yet (edit the issue to retrigger `prepare`);',
-              '- the repo doesn\'t have *Allow squash merging* enabled;',
-              '- the PR has conflicts or required-review settings blocking the merge.',
-              '',
-              `Details: [workflow run](${runUrl}). The \`approved\` label has been removed; a maintainer can re-add it after fixing.`,
-            ].join('\n');
-            await github.rest.issues.createComment({ owner, repo, issue_number, body });
-            await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'approved' }).catch(() => {});
