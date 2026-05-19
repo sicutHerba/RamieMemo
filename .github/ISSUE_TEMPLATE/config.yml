@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📮 邮件联系 / Email
+    url: mailto:sicut.herba@hotmail.com
+    about: 不方便公开提交内容时，可通过邮件联系维护者。
+  - name: 📝 贡献者表单 / Contributor Form
+    url: https://forms.gle/w81nXqYXf8Z1hUxV8
+    about: 也可通过 Google 表单提交。

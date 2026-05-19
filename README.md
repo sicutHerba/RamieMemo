@@ -15,6 +15,8 @@
 
 本项目完全开源，欢迎各种形式的贡献：报告错误、上传新内容、更新现有备忘录、改进代码。
 
+- **推荐**：使用 [📝 提交新备忘录 Issue 模板](https://github.com/sicutHerba/RamieMemo/issues/new?template=new-memo.yml) 填写结构化字段；机器人会自动解析、校验并在 Issue 中给出预览，维护者添加 `approved` 标签后自动生成 PR 合入主分支。
+
 - [填写表单](https://forms.gle/w81nXqYXf8Z1hUxV8)
 
 - 发送邮件至[sicut.herba@hotmail.com](mailto:sicut.herba@hotmail.com)

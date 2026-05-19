@@ -11,7 +11,9 @@
     "test:coverage": "jest --coverage",
     "build-index": "node scripts/build-index.js",
     "validate": "node scripts/validate-data.js",
-    "clean-blank-rows": "node scripts/clean-blank-rows.js"
+    "clean-blank-rows": "node scripts/clean-blank-rows.js",
+    "issue-to-memo": "node scripts/issue-to-memo.js",
+    "localize-images": "node scripts/localize-images.js"
   },
   "keywords": [
     "china",

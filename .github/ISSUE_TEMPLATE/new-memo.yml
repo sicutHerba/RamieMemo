@@ -1,0 +1,112 @@
+name: 📝 提交新备忘录 / Submit New Memo
+description: 通过结构化表单提交一条新的备忘录条目。Submit a new memo entry via structured form.
+title: "[Memo] "
+labels: ["memo-submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您为「苧麻备忘录」贡献内容。请认真填写以下字段。
+        提交后会自动校验并生成预览；维护者审核通过（添加 `approved` 标签）后，机器人将自动创建 Pull Request。
+
+        Thanks for contributing! After you submit, a bot validates your input and posts a preview.
+        Once a maintainer adds the `approved` label, a Pull Request will be opened automatically.
+
+  - type: input
+    id: title_zh
+    attributes:
+      label: 标题 / Title (zh)
+      description: 简体中文标题，简短自明。
+      placeholder: 例如：非法献花
+    validations:
+      required: true
+
+  - type: textarea
+    id: content_zh
+    attributes:
+      label: 内容 / Content (zh)
+      description: 简体中文正文。可使用 Markdown。请保持事实准确，直接引用须原样保留。
+      placeholder: 描述事件的背景、经过、影响…
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: 类型 / Type
+      description: 选择条目类型。
+      options:
+        - "2 - 历史事件 (event)"
+        - "1 - 人物 (figure)"
+        - "3 - 法律案件 (legal_case)"
+        - "4 - 名言 (quote)"
+        - "5 - 其他 (other)"
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: sources
+    attributes:
+      label: 来源 / Sources
+      description: |
+        每行一条参考资料，格式 `标题 | URL`，或带存档链接 `标题 | URL | 存档URL`。
+        One source per line in the form `Title | URL`, optionally `Title | URL | Archived URL`.
+      placeholder: |
+        维基百科：非法献花 | https://zh.wikipedia.org/wiki/%E9%9D%9E%E6%B3%95%E7%8C%AE%E8%8A%B1 | https://web.archive.org/web/...
+        新华社报道 | https://example.com/news
+    validations:
+      required: true
+
+  - type: input
+    id: date
+    attributes:
+      label: 日期 / Date (MMDD) — 可选 / optional
+      description: 四位日历日期，例如 `0512` 表示 5 月 12 日。无明确日期请留空（名言、综述等可不填）。
+      placeholder: "0512"
+
+  - type: input
+    id: tags_zh
+    attributes:
+      label: 标签 / Tags (zh) — 可选 / optional
+      description: 逗号分隔的中文标签。常用：女性, 性少数, 农村, 医疗, 维权, 党史, 劳工, 维吾尔, 六四, 法治, 图博, 香港。
+      placeholder: 法治, 维权
+
+  - type: textarea
+    id: images
+    attributes:
+      label: 图片 / Images — 可选 / optional
+      description: |
+        **推荐做法**：直接把图片拖入下方文本框，GitHub 会自动上传并生成形如 `![文件名](https://user-images.githubusercontent.com/...)` 的链接。机器人会把这些图片下载到仓库 `public/images/memos/` 下，并自动改写为本地路径（站点只引用本地图片）。
+        若想给图片加中文说明，请在该图片所在的 markdown 行**下一行**写一个引用块（以 `>` 开头），例如：
+        ```
+        ![photo.png](https://user-images.githubusercontent.com/.../abc.png)
+        > Google 中国办事处前的鲜花
+        ```
+        也可以直接粘贴公开图片直链（必须为 http(s) 公开可访问，机器人会下载并本地化）。
+
+        **Recommended**: drag-and-drop images directly into the box below — GitHub will auto-upload them and insert a markdown link. The bot downloads each image into `public/images/memos/` and rewrites the memo to use the local path (the site never hotlinks external images). To add a Chinese caption, put a `>` blockquote on the line **immediately below** the image.
+      placeholder: |
+        ![drag-and-drop your image here](https://user-images.githubusercontent.com/...)
+        > 图注（可选）
+
+        ![](https://example.com/another.jpg)
+        > 第二张图的说明
+
+  - type: input
+    id: related_memos
+    attributes:
+      label: 相关备忘录 / Related Memos — 可选，但强烈建议填写 / optional, strongly encouraged
+      description: |
+        逗号分隔的 2-3 个相关备忘录 ID，例如 `memo_0001, memo_0068`。
+        相关条目让读者能在备忘录之间穿梭，请挑选有任何关联的（相似事件、因果、人物）的条目，不只是标签相近。
+        Pick 2–3 memos with meaningful connections (same incident, cause/effect, shared figures) — not just topical similarity.
+      placeholder: memo_0001, memo_0068
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 提交确认 / Submission Confirmation
+      options:
+        - label: 我确认：内容通顺可读、事实准确，来源于可公开查证的资料，未侵犯版权，且不与现有条目重复。I confirm the content is clear and accurate, sourced from publicly verifiable material, does not infringe copyright, and does not duplicate an existing memo.
+          required: true
