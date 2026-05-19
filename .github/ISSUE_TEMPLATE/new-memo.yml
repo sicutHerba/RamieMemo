@@ -65,12 +65,30 @@ body:
       description: 四位日历日期，例如 `0512` 表示 5 月 12 日。无明确日期请留空（名言、综述等可不填）。
       placeholder: "0512"
 
-  - type: input
+  - type: textarea
     id: tags_zh
     attributes:
       label: 标签 / Tags (zh) — 可选 / optional
-      description: 逗号分隔的中文标签。常用：女性, 性少数, 农村, 医疗, 维权, 党史, 劳工, 维吾尔, 六四, 法治, 图博, 香港。
-      placeholder: 法治, 维权
+      description: |
+        **每行一个标签**（推荐）。也支持半角 `,` 或全角 `，` 分隔。
+        常用标签：女性、性少数、农村、医疗、维权、党史、劳工、维吾尔、六四、法治、图博、香港。
+        **One tag per line** (recommended). Commas (`,` or `，`) also work.
+      placeholder: |
+        法治
+        维权
+
+  - type: textarea
+    id: related_memos
+    attributes:
+      label: 相关备忘录 / Related Memos — 可选，但强烈建议填写 / optional, strongly encouraged
+      description: |
+        **每行一个 ID**（推荐），格式 `memo_XXXX`。也支持逗号或空格分隔。
+        请挑选 2–3 个有实际关联的条目（相似事件、因果关系、共同人物），而不只是话题相近。
+        **One memo ID per line** (recommended), e.g. `memo_0001`. Commas or spaces also work.
+        Pick 2–3 memos with meaningful connections (same incident, cause/effect, shared figures) — not just topical similarity.
+      placeholder: |
+        memo_0001
+        memo_0068
 
   - type: textarea
     id: images
@@ -93,15 +111,6 @@ body:
         ![](https://example.com/another.jpg)
         > 第二张图的说明
 
-  - type: input
-    id: related_memos
-    attributes:
-      label: 相关备忘录 / Related Memos — 可选，但强烈建议填写 / optional, strongly encouraged
-      description: |
-        逗号分隔的 2-3 个相关备忘录 ID，例如 `memo_0001, memo_0068`。
-        相关条目让读者能在备忘录之间穿梭，请挑选有任何关联的（相似事件、因果、人物）的条目，不只是标签相近。
-        Pick 2–3 memos with meaningful connections (same incident, cause/effect, shared figures) — not just topical similarity.
-      placeholder: memo_0001, memo_0068
 
   - type: checkboxes
     id: confirm

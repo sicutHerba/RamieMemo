@@ -70,7 +70,7 @@ function parseTypeValue(raw) {
 function parseTags(raw) {
   if (!raw) return [];
   return raw
-    .split(/[,，]/)
+    .split(/[,，\n\r]+/)
     .map((t) => t.trim())
     .filter(Boolean);
 }
