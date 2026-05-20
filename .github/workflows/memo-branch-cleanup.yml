@@ -1,0 +1,68 @@
+name: Memo Branch Cleanup
+
+on:
+  # Monthly sweep for stale memo/issue-* branches with no open PR.
+  schedule:
+    - cron: '17 3 1 * *'  # 03:17 UTC on the 1st of each month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  prune-stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete memo/issue-* branches older than 30 days with no open PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
+            // List open PRs once; any branch backing an open PR is kept.
+            const openPRs = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open', per_page: 100,
+            });
+            const openHeads = new Set(
+              openPRs
+                .filter(pr => pr.head.repo && pr.head.repo.full_name === `${owner}/${repo}`)
+                .map(pr => pr.head.ref)
+            );
+
+            const branches = await github.paginate(github.rest.repos.listBranches, {
+              owner, repo, per_page: 100,
+            });
+
+            const candidates = branches.filter(b => b.name.startsWith('memo/issue-'));
+            core.info(`Found ${candidates.length} memo/issue-* branches.`);
+
+            let deleted = 0;
+            for (const b of candidates) {
+              if (openHeads.has(b.name)) {
+                core.info(`Keep ${b.name} (open PR).`);
+                continue;
+              }
+              const { data: commit } = await github.rest.repos.getCommit({
+                owner, repo, ref: b.commit.sha,
+              });
+              const when = new Date(
+                (commit.commit.committer && commit.commit.committer.date) ||
+                (commit.commit.author && commit.commit.author.date)
+              ).getTime();
+              if (!when || when > cutoff) {
+                core.info(`Keep ${b.name} (age ok).`);
+                continue;
+              }
+              try {
+                await github.rest.git.deleteRef({
+                  owner, repo, ref: `heads/${b.name}`,
+                });
+                core.info(`Deleted stale ${b.name}.`);
+                deleted += 1;
+              } catch (err) {
+                core.warning(`Failed to delete ${b.name}: ${err.message}`);
+              }
+            }
+            core.info(`Done. Deleted ${deleted} stale branch(es).`);
