@@ -108,6 +108,10 @@ jobs:
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         with:
+          # Use a PAT/App token when available so the PR open/sync events
+          # trigger downstream workflows (e.g. deploy.yml PR checks).
+          # Falls back to GITHUB_TOKEN (no workflow-trigger) if not set.
+          github-token: ${{ secrets.MEMO_BOT_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const branch = `memo/issue-${process.env.ISSUE_NUMBER}`;
             const { owner, repo } = context.repo;
@@ -156,6 +160,9 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           BRANCH: ${{ steps.pr_lookup.outputs.branch }}
+          # Prefer a bot PAT so the branch push (PR synchronize) triggers
+          # downstream workflows. Falls back to GITHUB_TOKEN.
+          PUSH_TOKEN: ${{ secrets.MEMO_BOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -193,7 +200,11 @@ jobs:
           else
             git commit -m "feat(memo): add ${MEMO_ID} (from issue #${ISSUE_NUMBER})"
           fi
-          git push --force origin "$BRANCH"
+          # Authenticate the push with PUSH_TOKEN so PR synchronize events fire
+          # downstream workflows (only effective when MEMO_BOT_TOKEN is set).
+          git push --force \
+            "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "$BRANCH"
 
       - name: Open or update draft PR
         if: steps.action.outputs.next == 'build'
@@ -206,6 +217,9 @@ jobs:
           MEMO_FILE: ${{ steps.build.outputs.memo_file }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         with:
+          # See note on pr_lookup: a bot PAT makes the PR open event trigger
+          # deploy.yml's PR checks (test → validate → build).
+          github-token: ${{ secrets.MEMO_BOT_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             const { owner, repo } = context.repo;
@@ -217,6 +231,8 @@ jobs:
               `Auto-generated from issue submission. Adds memo \`${process.env.MEMO_ID}\` at \`${process.env.MEMO_FILE}\` and rebuilds \`index.json\`.`,
               '',
               `**Maintainers**: review the diff, edit any file in this PR directly if needed, then click **Merge** when ready. The bot will **not** overwrite manual edits on this PR unless someone comments \`/regenerate\` on the original issue.`,
+              '',
+              `**Deployment flow**: approve → wait for PR checks (\`test\` → \`validate\` → \`build\`) → merge → deploy. The same checks run again on \`main\` before publishing to GitHub Pages.`,
               '',
               preview,
             ].join('\n');
@@ -308,6 +324,7 @@ jobs:
                 `✅ PR 已就绪：${prUrl}`,
                 '',
                 '在 PR 的 *Files changed* 里查看生成的 JSON、下载下来的图片和 `index.json` 变化。需要调整直接在 PR 上改，满意后点 **Merge**。',
+                '完整流程：**审核 → 等 PR 检查通过 (`test` / `validate` / `build`) → Merge → 自动部署。**',
                 '想让机器人根据本 Issue 最新内容重新生成 PR（会覆盖 PR 上的人工修改），评论 `/regenerate`。',
                 '',
                 '---',
@@ -315,6 +332,7 @@ jobs:
                 `✅ PR ready: ${prUrl}`,
                 '',
                 'Review the generated JSON, downloaded images, and `index.json` diff in the *Files changed* tab. Edit the PR directly if anything needs tweaking, then click **Merge**.',
+                'Full flow: **approve → wait for PR checks (`test` / `validate` / `build`) → Merge → deploy.**',
                 'To rebuild the PR from the latest issue body (overwriting any manual edits on the PR), comment `/regenerate` here.',
               ].join('\n');
             }

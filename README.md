@@ -15,13 +15,22 @@
 
 本项目完全开源，欢迎各种形式的贡献：报告错误、上传新内容、更新现有备忘录、改进代码。
 
-- **推荐**：使用 [📝 提交新备忘录 Issue 模板](https://github.com/sicutHerba/RamieMemo/issues/new?template=new-memo.yml) 填写结构化字段；机器人会自动解析、校验并在 Issue 中给出预览，维护者添加 `approved` 标签后自动生成 PR 合入主分支。
+### 📝 提交新备忘录（推荐流程）
+
+使用 [**「提交新备忘录」Issue 模板**](https://github.com/sicutHerba/RamieMemo/issues/new?template=new-memo.yml) 填写结构化字段后，全程由机器人接力：
+
+1. **解析 & 预览**：机器人解析 Issue，在评论区贴出预览；解析失败会指出问题，编辑 Issue 后会自动重试。
+2. **自动开 PR**：解析成功后，机器人自动下载远端图片（SSRF 安全检查）、校验数据、重建 `index.json`，并在 `memo/issue-<编号>` 分支上开一个 PR。
+3. **审核**：维护者在 PR 的 *Files changed* 里查看生成结果，必要时直接在 PR 上修改。CI 自动运行 `test` → `validate` → `build` 三项检查。
+4. **合并 & 部署**：通过检查后点 Merge；合并到 `main` 会再跑一次完整构建并自动发布到 GitHub Pages。
+
+如果想根据 Issue 最新内容重新生成 PR（会覆盖 PR 上的人工修改），在 Issue 里评论 `/regenerate`（需 write 权限）。
+
+### 其它渠道
 
 - [填写表单](https://forms.gle/w81nXqYXf8Z1hUxV8)
-
-- 发送邮件至[sicut.herba@hotmail.com](mailto:sicut.herba@hotmail.com)
-
-- 创建[GitHub Issue](https://github.com/sicutHerba/RamieMemo/issues)
+- 发送邮件至 [sicut.herba@hotmail.com](mailto:sicut.herba@hotmail.com)
+- 创建普通 [GitHub Issue](https://github.com/sicutHerba/RamieMemo/issues)（无模板）
 
 ## ⚠️版权声明
 
