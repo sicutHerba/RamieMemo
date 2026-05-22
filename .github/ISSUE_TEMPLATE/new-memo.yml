@@ -36,8 +36,8 @@ body:
       label: 类型 / Type
       description: 选择条目类型。
       options:
-        - "2 - 历史事件 (event)"
         - "1 - 人物 (figure)"
+        - "2 - 历史事件 (event)"
         - "3 - 法律案件 (legal_case)"
         - "4 - 名言 (quote)"
         - "5 - 其他 (other)"
@@ -119,5 +119,5 @@ body:
     attributes:
       label: 提交确认 / Submission Confirmation
       options:
-        - label: 我确认：内容通顺可读、事实准确，来源于可公开查证的资料，未侵犯版权，且不与现有条目重复。I confirm the content is clear and accurate, sourced from publicly verifiable material, does not infringe copyright, and does not duplicate an existing memo.
+        - label: 我确认：内容通顺可读、事实准确，引用完整，且不与现有条目重复。I confirm the content is clear and accurate, fully cited, and does not duplicate an existing memo.
           required: true
