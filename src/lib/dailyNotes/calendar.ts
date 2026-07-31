@@ -1,9 +1,10 @@
 /**
- * Daily memo assignments for 2026
- * Each date (MM-DD) is assigned a specific memo ID
+ * Fixed calendar of daily memo assignments.
+ * Keyed by MM-DD so the same sequence repeats every year — no yearly maintenance needed.
+ * Leap day (02-29) falls back to the 02-28 memo at lookup time.
  */
 
-export const dailyNotes2026: Record<string, string> = {
+export const dailyNotesCalendar: Record<string, string> = {
   "01-01": "memo_0089",
   "01-02": "memo_0134",
   "01-03": "memo_0067",
